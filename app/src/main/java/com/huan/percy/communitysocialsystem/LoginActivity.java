@@ -1,7 +1,10 @@
 package com.huan.percy.communitysocialsystem;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -11,6 +14,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -30,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.inject(this);
+
 
         _loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,4 +146,29 @@ public class LoginActivity extends AppCompatActivity {
 
         return valid;
     }
+
+//    public static String sHA1(Context context) {
+//        try {
+//            PackageInfo info = context.getPackageManager().getPackageInfo(
+//                    context.getPackageName(), PackageManager.GET_SIGNATURES);
+//            byte[] cert = info.signatures[0].toByteArray();
+//            MessageDigest md = MessageDigest.getInstance("SHA1");
+//            byte[] publicKey = md.digest(cert);
+//            StringBuffer hexString = new StringBuffer();
+//            for (int i = 0; i < publicKey.length; i++) {
+//                String appendString = Integer.toHexString(0xFF & publicKey[i])
+//                        .toUpperCase(Locale.US);
+//                if (appendString.length() == 1)
+//                    hexString.append("0");
+//                hexString.append(appendString);
+//                hexString.append(":");
+//            }
+//            return hexString.toString();
+//        } catch (PackageManager.NameNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (NoSuchAlgorithmException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 }
