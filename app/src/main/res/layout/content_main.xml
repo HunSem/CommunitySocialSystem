@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -10,27 +10,26 @@
     tools:showIn="@layout/app_bar_main">
 
     <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/list_view_frame"
         xmlns:cube_ptr="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/list_view_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#f0f0f0"
-        cube_ptr:ptr_resistance="1.7"
-        cube_ptr:ptr_ratio_of_header_height_to_refresh="1.2"
         cube_ptr:ptr_duration_to_close="200"
-        cube_ptr:ptr_duration_to_close_header="1000"
+        cube_ptr:ptr_duration_to_close_header="700"
         cube_ptr:ptr_keep_header_when_refresh="true"
-        cube_ptr:ptr_pull_to_fresh="false">
+        cube_ptr:ptr_pull_to_fresh="false"
+        cube_ptr:ptr_ratio_of_header_height_to_refresh="1.2"
+        cube_ptr:ptr_resistance="1.8" >
 
         <ListView
+            android:paddingTop="7dp"
             android:id="@+id/list_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/white"
-            android:choiceMode="singleChoice"
-            android:divider="#b0b0b0"
-            android:dividerHeight="0.1dp"
-            android:fadingEdge="none"
+            android:divider="#00000000"
+            android:dividerHeight="1dp"
             android:scrollbarStyle="outsideOverlay"/>
+
     </android.support.v4.widget.SwipeRefreshLayout>
-</LinearLayout>
+</LinearLayout >

@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -18,8 +20,14 @@ import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.chanven.lib.cptr.PtrClassicFrameLayout;
+import com.chanven.lib.cptr.PtrDefaultHandler;
+import com.chanven.lib.cptr.PtrFrameLayout;
+import com.chanven.lib.cptr.PtrHandler;
+import com.chanven.lib.cptr.PtrUIHandler;
 import com.chanven.lib.cptr.loadmore.OnLoadMoreListener;
 import com.chanven.lib.cptr.loadmore.SwipeRefreshHelper;
+import com.chanven.lib.cptr.recyclerview.RecyclerAdapterWithHF;
 import com.huan.percy.communitysocialsystem.adapter.LifeListViewAdapter;
 import com.huan.percy.communitysocialsystem.adapter.LocalListViewAdapter;
 
@@ -36,6 +44,7 @@ public class MainActivity extends AppCompatActivity
     private LocalListViewAdapter mAdapter;
     private LifeListViewAdapter mLifeAdapter;
     private SwipeRefreshHelper mSwipeRefreshHelper;
+
 
     private int page = 0;
     private Handler mHandler = new Handler();
@@ -66,8 +75,10 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
+
         initView();
         initData();
+
 
     }
 
@@ -120,8 +131,6 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
-
 
     private void initView() {
         mSryt = (SwipeRefreshLayout) this.findViewById(R.id.list_view_frame);

@@ -1,6 +1,8 @@
 package com.huan.percy.communitysocialsystem.adapter;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,13 +46,17 @@ public class LocalListViewAdapter extends BaseAdapter {
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.list_item_layout, parent, false);
         }
-        TextView textView = (TextView) convertView;
-        textView.setText(datas.get(position));
+
+        TextView title = (TextView) convertView.findViewById(R.id.title);
+        title.setText(datas.get(position));
         return convertView;
+
+
     }
 
     public List<String> getData() {
         return datas;
     }
+
 
 }
