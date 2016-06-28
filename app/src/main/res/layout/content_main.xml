@@ -23,12 +23,12 @@
         cube_ptr:ptr_resistance="1.8" >
 
         <ListView
-            android:paddingTop="7dp"
+
             android:id="@+id/list_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:divider="#00000000"
-            android:dividerHeight="1dp"
+
             android:scrollbarStyle="outsideOverlay"/>
 
     </android.support.v4.widget.SwipeRefreshLayout>
