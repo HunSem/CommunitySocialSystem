@@ -211,9 +211,5 @@ public class SingupActivity extends AppCompatActivity {
         return valid;
     }
 
-    public String getLocation(){
-
-        return location;
-    }
 }
 

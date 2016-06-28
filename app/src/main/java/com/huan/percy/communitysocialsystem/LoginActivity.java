@@ -3,6 +3,7 @@ package com.huan.percy.communitysocialsystem;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -26,11 +27,15 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SINGUP = 0;
+    private boolean logined = false;
+    private String location = null;
+    private String name = null;
 
     @InjectView(R.id.input_email) EditText _emailText;
     @InjectView(R.id.input_password) EditText _passwordText;
     @InjectView(R.id.btn_login) Button _loginButton;
     @InjectView(R.id.link_signup) TextView _signupLink;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +43,11 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         ButterKnife.inject(this);
 
-
+        if (checkCookie()){
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            this.finish();
+        }
         _loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -111,6 +120,7 @@ public class LoginActivity extends AppCompatActivity {
     public void onLoginSuccess(){
         _loginButton.setEnabled(true);
         Toast.makeText(getBaseContext(), "登录成功", Toast.LENGTH_LONG).show();
+        saveCookie();
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         this.finish();
@@ -171,4 +181,22 @@ public class LoginActivity extends AppCompatActivity {
 //        }
 //        return null;
 //    }
+
+    public boolean checkCookie(){
+        SharedPreferences pref = getSharedPreferences("Cookie", MODE_PRIVATE);
+        return pref.getBoolean("logined", false);
+    }
+
+    public void saveCookie(){
+        SharedPreferences.Editor editor = getSharedPreferences("Cookie",
+                MODE_PRIVATE).edit();
+
+        logined = true;
+        editor.putBoolean("logined", logined);
+        editor.putString("email", _emailText.getText().toString());
+        editor.putString("pwd", _passwordText.getText().toString());
+        editor.putString("name", name);
+        editor.putString("location",location);
+        editor.apply();
+    }
 }
