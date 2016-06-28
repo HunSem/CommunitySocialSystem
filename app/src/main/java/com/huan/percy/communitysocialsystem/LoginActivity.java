@@ -7,6 +7,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Patterns;
@@ -16,8 +18,21 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import butterknife.ButterKnife;
@@ -30,6 +45,9 @@ public class LoginActivity extends AppCompatActivity {
     private boolean logined = false;
     private String location = null;
     private String name = null;
+    private Boolean loginResult = false;
+    private static final String REQUEST_URL = "http://192.168.22.74:8003/LingliServer/test";
+    public static final int HANDLE_RESPOND = 1;
 
     @InjectView(R.id.input_email) EditText _emailText;
     @InjectView(R.id.input_password) EditText _passwordText;
@@ -85,14 +103,16 @@ public class LoginActivity extends AppCompatActivity {
         String password = _passwordText.getText().toString();
 
         //TODO: Implement your own anthentication logic here
-
+        verifyAccount(email, password);
 
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     @Override
                     public void run() {
                         //On complete call either onLoginSuccess or onLoginFailed
-                        onLoginSuccess();
+                        if (loginResult){ onLoginSuccess();}
+                        else { onLoginFailed();}
+                        //onLoginSuccess();
                         //onLoginFailed
                         progressDialog.dismiss();
                     }
@@ -157,7 +177,74 @@ public class LoginActivity extends AppCompatActivity {
         return valid;
     }
 
-//    public static String sHA1(Context context) {
+    public boolean checkCookie(){
+        SharedPreferences pref = getSharedPreferences("Cookie", MODE_PRIVATE);
+        return pref.getBoolean("logined", false);
+    }
+
+    public void saveCookie(){
+        SharedPreferences.Editor editor = getSharedPreferences("Cookie",
+                MODE_PRIVATE).edit();
+
+        logined = true;
+        editor.putBoolean("logined", logined);
+        editor.putString("email", _emailText.getText().toString());
+        editor.putString("pwd", _passwordText.getText().toString());
+        editor.putString("name", name);
+        editor.putString("location",location);
+        editor.apply();
+    }
+
+    public void verifyAccount(final String id, final String pw) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    HttpClient httpclient = new DefaultHttpClient();
+                    HttpPost httpPost = new HttpPost(REQUEST_URL);//服务器地址，指向Servlet
+                    List<NameValuePair> params = new ArrayList<NameValuePair>();//将id和pw装入list
+                    params.add(new BasicNameValuePair("id", id));
+                    params.add(new BasicNameValuePair("pw", pw));
+                    final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, "utf-8");//以UTF-8格式发送
+                    httpPost.setEntity(entity);
+                    HttpResponse httpResponse = httpclient.execute(httpPost);
+                    if (httpResponse.getStatusLine().getStatusCode() == 200)//在200毫秒之内接收到返回值
+                    {
+                        HttpEntity entity1 = httpResponse.getEntity();
+                        String response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
+                        // parsing JSON
+                        JSONObject result = new JSONObject(response); //Convert String to JSON Object
+                        loginResult = result.getBoolean("result");
+                        name = result.getString("name");
+                        location = result.getString("location");
+                        //Log.d("json", "login:"+login + " name:"+name+" location:"+location);
+
+                        Message message = new Message();
+                        message.what = HANDLE_RESPOND;
+                        message.obj = response;
+                        handler.sendMessage(message);//使用Message传递消息给线程
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    public Handler handler = new Handler() {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case HANDLE_RESPOND:
+                    String response = (String) msg.obj;
+                    //Toast.makeText(LoginActivity.this, response, Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+    //    public static String sHA1(Context context) {
 //        try {
 //            PackageInfo info = context.getPackageManager().getPackageInfo(
 //                    context.getPackageName(), PackageManager.GET_SIGNATURES);
@@ -181,22 +268,4 @@ public class LoginActivity extends AppCompatActivity {
 //        }
 //        return null;
 //    }
-
-    public boolean checkCookie(){
-        SharedPreferences pref = getSharedPreferences("Cookie", MODE_PRIVATE);
-        return pref.getBoolean("logined", false);
-    }
-
-    public void saveCookie(){
-        SharedPreferences.Editor editor = getSharedPreferences("Cookie",
-                MODE_PRIVATE).edit();
-
-        logined = true;
-        editor.putBoolean("logined", logined);
-        editor.putString("email", _emailText.getText().toString());
-        editor.putString("pwd", _passwordText.getText().toString());
-        editor.putString("name", name);
-        editor.putString("location",location);
-        editor.apply();
-    }
 }
