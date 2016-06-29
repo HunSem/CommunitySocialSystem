@@ -25,14 +25,14 @@
                 android:text="Percy"
                 android:paddingStart="5dp"
                 android:textColor="@color/black"
-                android:textSize="20sp"/>
+                android:textSize="17sp"/>
             <TextView
                 android:layout_below="@+id/author"
                 android:id="@+id/article"
                 android:paddingStart="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="20sp"
+                android:textSize="15sp"
                 android:text="Article"
                 android:textColor="@color/monsoon"/>
             <TextView

@@ -2,6 +2,7 @@ package com.huan.percy.communitysocialsystem;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -17,16 +18,33 @@ import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
+
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 public class SingupActivity extends AppCompatActivity {
     private static final String TAG = "SignupActivity";
+
     private String location = "null";
 
+    private final String IP = "";
+    private final String REGISTER_REQUEST = "LingliServer/SignUp";
+    private boolean registerResult = false;
     @InjectView(R.id.input_name) EditText _nameText;
     @InjectView(R.id.input_email) EditText _emailText;
     @InjectView(R.id.input_password) EditText _passwordText;
@@ -52,7 +70,8 @@ public class SingupActivity extends AppCompatActivity {
                     Toast.makeText(getBaseContext(), "无法获取位置信息，请检查网络设置", Toast.LENGTH_LONG).show();
                 } else {
                     Log.d("AmapError", location);
-                    signup();
+
+                    signUp();
                 }
 
             }
@@ -68,7 +87,6 @@ public class SingupActivity extends AppCompatActivity {
 
         //初始化定位
         mLocationClient = new AMapLocationClient(getApplicationContext());
-
         //初始化定位参数
         mLocationOption = new AMapLocationClientOption();
         //设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
@@ -129,8 +147,8 @@ public class SingupActivity extends AppCompatActivity {
         mLocationClient.setLocationListener(mLocationListener);
     }
 
-    public void signup(){
-        Log.d(TAG, "Signup");
+    public void signUp(){
+        Log.d(TAG, "SignUp");
 
         if(!validate()){
             onSignupFailed();
@@ -145,11 +163,9 @@ public class SingupActivity extends AppCompatActivity {
         progressDialog.setMessage("正在创建账户...");
         progressDialog.show();
 
-        String name = _nameText.getText().toString();
-        String email = _emailText.getText().toString();
-        String password = _passwordText.getText().toString();
+        //TODO:Implement your own sigUp logic here
 
-        //TODO:Implement your own sigup logic here
+        register();
 
         new android.os.Handler().postDelayed(
                 new Runnable() {
@@ -157,8 +173,12 @@ public class SingupActivity extends AppCompatActivity {
                     public void run() {
                         //On complete call either on SignupSuccess or onSignupFailed
                         //depending on success
-                        onSignupSuccess();
-                        //onSignupFailed();
+                        if (registerResult){
+                            onSignupSuccess();
+                        }
+                        else {
+                            onSignupFailed();
+                        }
                         progressDialog.dismiss();
                     }
                 }, 3000
@@ -211,5 +231,39 @@ public class SingupActivity extends AppCompatActivity {
         return valid;
     }
 
+    private void register(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    HttpClient httpclient = new DefaultHttpClient();
+                    HttpPost httpPost = new HttpPost(IP+REGISTER_REQUEST);//服务器地址，指向Servlet
+                    List<NameValuePair> params = new ArrayList<NameValuePair>();
+
+                    params.add(new BasicNameValuePair("id", _emailText.getText().toString()));
+                    params.add(new BasicNameValuePair("pw", _passwordText.getText().toString()));
+                    params.add(new BasicNameValuePair("name", _nameText.getText().toString()));
+                    params.add(new BasicNameValuePair("location", location));
+
+                    final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, "utf-8");//以UTF-8格式发送
+                    httpPost.setEntity(entity);
+                    HttpResponse httpResponse = httpclient.execute(httpPost);
+                    if (httpResponse.getStatusLine().getStatusCode() == 200)//在200毫秒之内接收到返回值
+                    {
+                        HttpEntity entity1 = httpResponse.getEntity();
+                        String response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
+                        // parsing JSON
+                        JSONObject result = new JSONObject(response); //Convert String to JSON Object
+
+                        registerResult = result.getBoolean("result");
+                        //Log.d("json", "login:"+login + " name:"+name+" location:"+location);
+
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
 }
 

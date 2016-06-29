@@ -46,7 +46,9 @@ public class LoginActivity extends AppCompatActivity {
     private String location = null;
     private String name = null;
     private Boolean loginResult = false;
-    private static final String REQUEST_URL = "http://192.168.22.74:8003/LingliServer/test";
+    private final String IP = "http://192.168.22.74:8003";
+    private final String REQUEST_URL = "/LingliServer/SignIn";
+
     public static final int HANDLE_RESPOND = 1;
 
     @InjectView(R.id.input_email) EditText _emailText;
@@ -201,7 +203,7 @@ public class LoginActivity extends AppCompatActivity {
             public void run() {
                 try {
                     HttpClient httpclient = new DefaultHttpClient();
-                    HttpPost httpPost = new HttpPost(REQUEST_URL);//服务器地址，指向Servlet
+                    HttpPost httpPost = new HttpPost(IP+REQUEST_URL);//服务器地址，指向Servlet
                     List<NameValuePair> params = new ArrayList<NameValuePair>();//将id和pw装入list
                     params.add(new BasicNameValuePair("id", id));
                     params.add(new BasicNameValuePair("pw", pw));

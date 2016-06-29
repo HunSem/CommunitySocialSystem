@@ -1,13 +1,17 @@
 package com.huan.percy.communitysocialsystem;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -23,7 +27,22 @@ import android.widget.Toast;
 
 import com.cjj.MaterialRefreshLayout;
 import com.cjj.MaterialRefreshListener;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,10 +50,14 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private final String IP = "";
+    private final String GET_BROADCAST_REQUEST = "/LingliServer/ GetBroadcast";
+    private final String GET_LIFE_REQUEST = "/LingliServer/ GetService";
+
+    private String location;
     private MaterialRefreshLayout materialRefreshLayout;
     private ListView mListView;
     private static boolean LOCAL_SELECTED = true;
-
     private int[] to={R.id.author, R.id.article, R.id.date};   //这里是ListView显示每一列对应的list_item中控件的id
     List<Map<String, Object>> localListItems = new ArrayList<Map<String, Object>>();
     List<Map<String, Object>> lifeListItems = new ArrayList<Map<String, Object>>();
@@ -120,7 +143,7 @@ public class MainActivity extends AppCompatActivity
 
                 @Override
                 public void onfinish() {
-
+                    Toast.makeText(getApplicationContext(), "刷新好了 ╰(￣▽￣)╭", Toast.LENGTH_LONG).show();
                 }
             });
         }
@@ -165,21 +188,16 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
         if (id == R.id.nav_user_broadcast) {
             LOCAL_SELECTED = true;
-            materialRefreshLayout.autoRefresh();
         } else if (id == R.id.nav_life_info) {
-           LOCAL_SELECTED = false;
-            materialRefreshLayout.autoRefresh();
+            LOCAL_SELECTED = false;
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+        materialRefreshLayout.autoRefresh();
         return true;
     }
-
-
 
     private void loadLocalData(SimpleAdapter localAdapter) {
         localListItems.clear();
@@ -229,6 +247,75 @@ public class MainActivity extends AppCompatActivity
         listItem.put("date", "08:40");
         lifeListItems.add(listItem);
         lifeAdapter.notifyDataSetChanged();
+    }
+
+    public void getBroadcast() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    HttpClient httpclient = new DefaultHttpClient();
+                    HttpPost httpPost = new HttpPost(IP+GET_BROADCAST_REQUEST);//服务器地址，指向Servlet
+                    List<NameValuePair> params = new ArrayList<NameValuePair>();
+                    //获取本地街道Cookie
+                    SharedPreferences pref = getSharedPreferences("Cookie", MODE_PRIVATE);
+                    location  = pref.getString("location", "null");
+
+
+                    params.add(new BasicNameValuePair("location", location));
+
+                    final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, "utf-8");//以UTF-8格式发送
+                    httpPost.setEntity(entity);
+                    HttpResponse httpResponse = httpclient.execute(httpPost);
+                    if (httpResponse.getStatusLine().getStatusCode() == 200)//在200毫秒之内接收到返回值
+                    {
+                        HttpEntity entity1 = httpResponse.getEntity();
+                        String response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
+                        // parsing JSON
+                        JSONObject result = new JSONObject(response); //Convert String to JSON Object
+
+                        //Log.d("json", "login:"+login + " name:"+name+" location:"+location);
+
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private void getLifeIfo(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    HttpClient httpclient = new DefaultHttpClient();
+                    HttpPost httpPost = new HttpPost(IP+GET_LIFE_REQUEST);//服务器地址，指向Servlet
+                    List<NameValuePair> params = new ArrayList<NameValuePair>();
+                    //获取本地街道Cookie
+                    SharedPreferences pref = getSharedPreferences("Cookie", MODE_PRIVATE);
+                    location  = pref.getString("location", "null");
+
+                    params.add(new BasicNameValuePair("location", location));
+
+                    final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, "utf-8");//以UTF-8格式发送
+                    httpPost.setEntity(entity);
+                    HttpResponse httpResponse = httpclient.execute(httpPost);
+                    if (httpResponse.getStatusLine().getStatusCode() == 200)//在200毫秒之内接收到返回值
+                    {
+                        HttpEntity entity1 = httpResponse.getEntity();
+                        String response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
+                        // parsing JSON
+                        JSONObject result = new JSONObject(response); //Convert String to JSON Object
+
+                        //Log.d("json", "login:"+login + " name:"+name+" location:"+location);
+
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
 }
