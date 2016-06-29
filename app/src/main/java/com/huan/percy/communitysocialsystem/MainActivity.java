@@ -190,12 +190,13 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         if (id == R.id.nav_user_broadcast) {
             LOCAL_SELECTED = true;
+            materialRefreshLayout.autoRefresh();
         } else if (id == R.id.nav_life_info) {
             LOCAL_SELECTED = false;
+            materialRefreshLayout.autoRefresh();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
-        materialRefreshLayout.autoRefresh();
         return true;
     }
 
