@@ -18,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import com.chanven.lib.cptr.PtrClassicFrameLayout;
@@ -28,26 +29,28 @@ import com.chanven.lib.cptr.PtrUIHandler;
 import com.chanven.lib.cptr.loadmore.OnLoadMoreListener;
 import com.chanven.lib.cptr.loadmore.SwipeRefreshHelper;
 import com.chanven.lib.cptr.recyclerview.RecyclerAdapterWithHF;
+import com.cjj.MaterialRefreshLayout;
+import com.cjj.MaterialRefreshListener;
 import com.huan.percy.communitysocialsystem.adapter.LifeListViewAdapter;
 import com.huan.percy.communitysocialsystem.adapter.LocalListViewAdapter;
+import com.huan.percy.communitysocialsystem.model.LifeInfo;
+import com.huan.percy.communitysocialsystem.model.LocalBroadcast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private SwipeRefreshLayout mSryt;
+    private MaterialRefreshLayout materialRefreshLayout;
     private ListView mListView;
+    private static boolean LOCAL_SELECTED = true;
 
-    private List<String> mDatas = new ArrayList<>();
-    private LocalListViewAdapter mAdapter;
-    private LifeListViewAdapter mLifeAdapter;
-    private SwipeRefreshHelper mSwipeRefreshHelper;
-
-
-    private int page = 0;
-    private Handler mHandler = new Handler();
+    private int[] to={R.id.author, R.id.article, R.id.date};   //这里是ListView显示每一列对应的list_item中控件的id
+    List<Map<String, Object>> localListItems = new ArrayList<Map<String, Object>>();
+    List<Map<String, Object>> lifeListItems = new ArrayList<Map<String, Object>>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,10 +77,68 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        final SimpleAdapter localAdapter = new SimpleAdapter(this, localListItems, R.layout.list_item_layout,
+                new String[] {"author", "article", "date"},
+                to);
+        final SimpleAdapter lifeAdapter = new SimpleAdapter(this, lifeListItems, R.layout.list_item_layout,
+                new String[] {"title", "article", "date"},
+                to);
+
+        materialRefreshLayout = (MaterialRefreshLayout) findViewById(R.id.refresh);
+        mListView = (ListView) findViewById(R.id.list_view);
+
+        if (materialRefreshLayout != null) {
+            materialRefreshLayout.setSunStyle(true);
+            materialRefreshLayout.setLoadMore(true);
+            materialRefreshLayout.autoRefresh();
+            materialRefreshLayout.setMaterialRefreshListener(new MaterialRefreshListener() {
+                @Override
+                public void onRefresh(final MaterialRefreshLayout materialRefreshLayout) {
+                    materialRefreshLayout.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (LOCAL_SELECTED){
+                                //下拉刷新
+                                loadLocalData(localAdapter);
+                            } else {
+                                loadLifeData(lifeAdapter);
+                            }
+
+                            // 结束下拉刷新...
+                            materialRefreshLayout.finishRefresh();
+                        }
+                    }, 2000);
+
+                }
+
+                @Override
+                public void onRefreshLoadMore(final MaterialRefreshLayout materialRefreshLayout) {
+                    super.onRefreshLoadMore(materialRefreshLayout);
+
+                    materialRefreshLayout.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (LOCAL_SELECTED){
+                                //下拉刷新
+                                loadLocalMore(localAdapter);
+                            } else {
+                                loadLifeMore(lifeAdapter);
+                            }
+
+                            // 结束上拉刷新...
+                            materialRefreshLayout.finishRefreshLoadMore();
+                        }
+                    }, 2000);
 
 
-        initView();
-        initData();
+                }
+
+                @Override
+                public void onfinish() {
+
+                }
+            });
+        }
 
 
     }
@@ -121,10 +182,11 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_user_broadcast) {
-            initData();
+            LOCAL_SELECTED = true;
+            materialRefreshLayout.autoRefresh();
         } else if (id == R.id.nav_life_info) {
-            updateData();
-
+           LOCAL_SELECTED = false;
+            materialRefreshLayout.autoRefresh();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -132,132 +194,57 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void initView() {
-        mSryt = (SwipeRefreshLayout) this.findViewById(R.id.list_view_frame);
-        mListView = (ListView) findViewById(R.id.list_view);
-        mSryt.setColorSchemeColors(Color.RED);
-    }
 
-    private void initData() {
-        mAdapter = new LocalListViewAdapter(this, mDatas);
-        mListView.setAdapter(mAdapter);
-        mSwipeRefreshHelper = new SwipeRefreshHelper(mSryt);
 
-        mSryt.post(new Runnable() {
-            @Override
-            public void run() {
-                mSwipeRefreshHelper.autoRefresh();
-            }
-        });
-
-        mSwipeRefreshHelper.setOnSwipeRefreshListener(new SwipeRefreshHelper.OnSwipeRefreshListener() {
-            @Override
-            public void onfresh() {
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mDatas.clear();
-                        page = 0;
-                        for (int i = 0; i < 17; i++) {
-                            mDatas.add(new String("  SwipeListView item  -" + i));
-                        }
-                        mAdapter.notifyDataSetChanged();
-                        mSwipeRefreshHelper.refreshComplete();
-                        mSwipeRefreshHelper.setLoadMoreEnable(true);
-                    }
-                }, 1000);
-            }
-        });
-
-        mSwipeRefreshHelper.setOnLoadMoreListener(new OnLoadMoreListener() {
-            @Override
-            public void loadMore() {
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mDatas.add(new String("  SwipeListView item  - add " + page));
-                        mAdapter.notifyDataSetChanged();
-                        mSwipeRefreshHelper.loadMoreComplete(true);
-                        page++;
-                        Toast.makeText(MainActivity.this, "load more complete", Toast.LENGTH_SHORT)
-                                .show();
-                    }
-                }, 1000);
-            }
-        });
-
-    }
-
-    private void updateData(){
-        mLifeAdapter = new LifeListViewAdapter(this, mDatas);
-        mListView.setAdapter(mLifeAdapter);
-        mSwipeRefreshHelper = new SwipeRefreshHelper(mSryt);
-
-        mSryt.post(new Runnable() {
-            @Override
-            public void run() {
-                mSwipeRefreshHelper.autoRefresh();
-            }
-        });
-
-        mSwipeRefreshHelper.setOnSwipeRefreshListener(new SwipeRefreshHelper.OnSwipeRefreshListener() {
-            @Override
-            public void onfresh() {
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mDatas.clear();
-                        page = 0;
-                        for (int i = 0; i < 17; i++) {
-                            mDatas.add(new String("  update  -" + i));
-                        }
-                        mLifeAdapter.notifyDataSetChanged();
-                        mSwipeRefreshHelper.refreshComplete();
-                        mSwipeRefreshHelper.setLoadMoreEnable(true);
-                    }
-                }, 1000);
-            }
-        });
-
-        mSwipeRefreshHelper.setOnLoadMoreListener(new OnLoadMoreListener() {
-            @Override
-            public void loadMore() {
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mDatas.add(new String("  SwipeListView item  - add " + page));
-                        mLifeAdapter.notifyDataSetChanged();
-                        mSwipeRefreshHelper.loadMoreComplete(true);
-                        page++;
-                        Toast.makeText(MainActivity.this, "load more complete", Toast.LENGTH_SHORT)
-                                .show();
-                    }
-                }, 1000);
-            }
-        });
-
-    }
-
-    SwipeRefreshHelper.OnSwipeRefreshListener mOnSwipeRefreshListener = new SwipeRefreshHelper.OnSwipeRefreshListener() {
-        @Override
-        public void onfresh() {
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mDatas.clear();
-                    page = 0;
-                    for (int i = 0; i < 17; i++) {
-                        mDatas.add(new String("  SwipeListView item  -" + i));
-                    }
-                    mAdapter.notifyDataSetChanged();
-                    mSwipeRefreshHelper.refreshComplete();
-                    mSwipeRefreshHelper.setLoadMoreEnable(true);
-                }
-            }, 1000);
+    private void loadLocalData(SimpleAdapter localAdapter) {
+        localListItems.clear();
+        for(int i = 0; i < 10; i++){
+            Map<String, Object> listItem = new HashMap<String, Object>();
+            listItem.put("author", "HunSem");
+            listItem.put("article", "啊是你倒是");
+            listItem.put("date", "08:40");
+            localListItems.add(listItem);
         }
-    };
+        mListView.setAdapter(localAdapter);
 
+        localAdapter.notifyDataSetChanged();
 
+    }
+
+    private void loadLocalMore(SimpleAdapter localAdapter){
+
+        Map<String, Object> listItem = new HashMap<String, Object>();
+        listItem.put("author", "HunSem");
+        listItem.put("article", "打了卡升级了");
+        listItem.put("date", "08:40");
+        localListItems.add(listItem);
+        localAdapter.notifyDataSetChanged();
+    }
+
+    private void loadLifeData(SimpleAdapter lifeAdapter) {
+        lifeListItems.clear();
+        for(int i = 0; i < 10; i++){
+            Map<String, Object> listItem = new HashMap<String, Object>();
+            listItem.put("title", "老板娘跑了！！");
+            listItem.put("article", "清仓大甩卖！");
+            listItem.put("date", "08:40");
+            lifeListItems.add(listItem);
+        }
+        mListView.setAdapter(lifeAdapter);
+
+        lifeAdapter.notifyDataSetChanged();
+
+    }
+
+    private void loadLifeMore(SimpleAdapter lifeAdapter){
+
+        Map<String, Object> listItem = new HashMap<String, Object>();
+        listItem.put("title", "老板娘回来了！！");
+        listItem.put("article", "优惠促销！");
+        listItem.put("date", "08:40");
+        lifeListItems.add(listItem);
+        lifeAdapter.notifyDataSetChanged();
+    }
 
 }
 

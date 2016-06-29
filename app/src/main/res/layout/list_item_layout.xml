@@ -29,13 +29,14 @@
             <TextView
                 android:layout_below="@+id/author"
                 android:id="@+id/article"
+                android:paddingStart="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
                 android:text="Article"
                 android:textColor="@color/monsoon"/>
             <TextView
-                android:id="@+id/time"
+                android:id="@+id/date"
                 android:paddingEnd="5dp"
                 android:layout_alignParentEnd="true"
                 android:layout_width="wrap_content"

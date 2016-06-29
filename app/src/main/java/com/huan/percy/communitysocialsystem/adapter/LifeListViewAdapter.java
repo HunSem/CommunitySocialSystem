@@ -27,6 +27,7 @@ public class LifeListViewAdapter extends BaseAdapter {
         datas = data;
     }
 
+
     @Override
     public int getCount() {
         return datas.size();
