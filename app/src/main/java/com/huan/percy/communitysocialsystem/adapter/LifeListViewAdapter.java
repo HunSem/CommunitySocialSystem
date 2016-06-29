@@ -48,7 +48,7 @@ public class LifeListViewAdapter extends BaseAdapter {
             convertView = inflater.inflate(R.layout.list_item_layout, parent, false);
         }
 
-        TextView title = (TextView) convertView.findViewById(R.id.title);
+        TextView title = (TextView) convertView.findViewById(R.id.article);
         title.setText(datas.get(position));
         return convertView;
     }

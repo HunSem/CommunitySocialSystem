@@ -29,4 +29,21 @@
         <item name="android:background">@color/primary</item>
     </style>
 
+    <style name="AppTheme.Add" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+
+        <item name="android:windowBackground">@color/primary</item>
+
+        <item name="colorControlNormal">@color/jumbo</item>
+        <item name="colorControlActivated">@color/colorPrimary</item>
+        <item name="colorControlHighlight">@color/colorPrimary</item>
+        <item name="android:textColorHint">@color/jumbo</item>
+
+        <item name="colorButtonNormal">@color/iron</item>
+        <item name="android:colorButtonNormal">@color/iron</item>
+
+    </style>
+
 </resources>

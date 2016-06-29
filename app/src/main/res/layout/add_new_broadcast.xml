@@ -1,30 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="@color/white"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <android.support.v7.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:popupTheme="@style/AppTheme.PopupOverlay" >
+        <Button
+            android:id="@+id/back"
+            android:layout_width="23dp"
+            android:layout_height="23dp"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:background="@drawable/back_logo"/>
+        <TextView
+            android:paddingStart="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:text="发表新动态"/>
+    </android.support.v7.widget.Toolbar>
+    <!--<android.support.design.widget.AppBarLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:theme="@style/AppTheme.AppBarOverlay">-->
+        <!---->
+
+    <!--</android.support.design.widget.AppBarLayout>-->
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        app:theme="@style/AppTheme.Add"
         android:layout_marginBottom="8dp">
         <EditText
-            android:id="@+id/add_content"
-            android:hint="有什么想说的..."
-            android:layout_width="fill_parent"
+            android:id="@+id/title"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:enabled="true"
-            android:gravity="top"
-            android:inputType="textMultiLine"
-            android:minLines="15"
-            android:maxLines="20"
-            android:scrollbars="vertical"
-            android:textColor="@color/black"
-            android:background="@android:drawable/edit_text">
-        </EditText>
+            android:inputType="textEmailAddress"
+            android:hint="标题"/>
     </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:theme="@style/AppTheme.Add"
+        android:layout_marginBottom="8dp">
+        <EditText
+            android:id="@+id/content"
+            android:gravity="top"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:minLines="10"
+            android:hint="说点什么..."/>
+    </android.support.design.widget.TextInputLayout>
+    <Button
+        android:layout_gravity="end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:theme="@style/AppTheme.Add"
+        android:text="发送"/>
 
 
 </LinearLayout>
