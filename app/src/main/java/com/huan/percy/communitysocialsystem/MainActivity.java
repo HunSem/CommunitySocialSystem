@@ -21,21 +21,8 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
-import com.chanven.lib.cptr.PtrClassicFrameLayout;
-import com.chanven.lib.cptr.PtrDefaultHandler;
-import com.chanven.lib.cptr.PtrFrameLayout;
-import com.chanven.lib.cptr.PtrHandler;
-import com.chanven.lib.cptr.PtrUIHandler;
-import com.chanven.lib.cptr.loadmore.OnLoadMoreListener;
-import com.chanven.lib.cptr.loadmore.SwipeRefreshHelper;
-import com.chanven.lib.cptr.recyclerview.RecyclerAdapterWithHF;
 import com.cjj.MaterialRefreshLayout;
 import com.cjj.MaterialRefreshListener;
-import com.huan.percy.communitysocialsystem.adapter.LifeListViewAdapter;
-import com.huan.percy.communitysocialsystem.adapter.LocalListViewAdapter;
-import com.huan.percy.communitysocialsystem.model.LifeInfo;
-import com.huan.percy.communitysocialsystem.model.LocalBroadcast;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -129,8 +116,6 @@ public class MainActivity extends AppCompatActivity
                             materialRefreshLayout.finishRefreshLoadMore();
                         }
                     }, 2000);
-
-
                 }
 
                 @Override
