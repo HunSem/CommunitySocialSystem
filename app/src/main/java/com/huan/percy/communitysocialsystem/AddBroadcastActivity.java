@@ -39,12 +39,10 @@ import java.util.List;
  */
 public class AddBroadcastActivity extends AppCompatActivity {
 
-    private final String IP = "";
+    private final String IP = "http://192.168.23.178:8003";
     private final String ADD_REQUEST = "/LingliServer/AddBroadcast";
 
     private String location;
-    private String date;
-    private String name;
     private String email;
     private boolean sendResult = false;
     private EditText inputTxt;
@@ -144,16 +142,11 @@ public class AddBroadcastActivity extends AppCompatActivity {
                     SharedPreferences pref = getSharedPreferences("Cookie", MODE_PRIVATE);
                     location  = pref.getString("location", "null");
                     email = pref.getString("email", "null");
-                    name = pref.getString("name", "null");
 
-                    Calendar c = Calendar.getInstance();
-                    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-                    String date = df.format(c.getTime());
-
-                    params.add(new BasicNameValuePair("email", email));
+                    params.add(new BasicNameValuePair("id", email));
                     params.add(new BasicNameValuePair("article", content));
                     params.add(new BasicNameValuePair("location", location));
-                    params.add(new BasicNameValuePair("date", date));
+
 
                     final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, "utf-8");//以UTF-8格式发送
                     httpPost.setEntity(entity);

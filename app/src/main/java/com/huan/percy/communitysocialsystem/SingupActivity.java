@@ -41,9 +41,10 @@ public class SingupActivity extends AppCompatActivity {
     private static final String TAG = "SignupActivity";
 
     private String location = "null";
+    private String name = "null";
 
-    private final String IP = "";
-    private final String REGISTER_REQUEST = "LingliServer/SignUp";
+    private final String IP = "http://192.168.23.178:8003";
+    private final String REGISTER_REQUEST = "/LingliServer/SignUp";
     private boolean registerResult = false;
     @InjectView(R.id.input_name) EditText _nameText;
     @InjectView(R.id.input_email) EditText _emailText;
@@ -132,6 +133,7 @@ public class SingupActivity extends AppCompatActivity {
 //                        amapLocation.getAoiName();//获取当前定位点的AOI信息
 
                         location = amapLocation.getStreet();
+                        Log.d("city", location);
                         mLocationClient.stopLocation();//停止定位
 
                     } else {
@@ -255,7 +257,9 @@ public class SingupActivity extends AppCompatActivity {
                         // parsing JSON
                         JSONObject result = new JSONObject(response); //Convert String to JSON Object
 
+                        name = result.getString("name");
                         registerResult = result.getBoolean("result");
+
                         //Log.d("json", "login:"+login + " name:"+name+" location:"+location);
 
                     }

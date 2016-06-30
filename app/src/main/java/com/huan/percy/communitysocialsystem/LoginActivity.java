@@ -42,11 +42,10 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SINGUP = 0;
-    private boolean logined = false;
     private String location = null;
     private String name = null;
-    private Boolean loginResult = false;
-    private final String IP = "http://192.168.22.74:8003";
+    private boolean loginResult = false;
+    private final String IP = "http://192.168.23.178:8003";
     private final String REQUEST_URL = "/LingliServer/SignIn";
 
     public static final int HANDLE_RESPOND = 1;
@@ -188,8 +187,8 @@ public class LoginActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = getSharedPreferences("Cookie",
                 MODE_PRIVATE).edit();
 
-        logined = true;
-        editor.putBoolean("logined", logined);
+        loginResult = true;
+        editor.putBoolean("logined", loginResult);
         editor.putString("email", _emailText.getText().toString());
         editor.putString("pwd", _passwordText.getText().toString());
         editor.putString("name", name);
@@ -219,7 +218,8 @@ public class LoginActivity extends AppCompatActivity {
                         loginResult = result.getBoolean("result");
                         name = result.getString("name");
                         location = result.getString("location");
-                        //Log.d("json", "login:"+login + " name:"+name+" location:"+location);
+
+                        Log.d("json", "login:"+loginResult + " name:"+name+" location:"+location);
 
                         Message message = new Message();
                         message.what = HANDLE_RESPOND;

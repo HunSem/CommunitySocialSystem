@@ -21,6 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
@@ -37,6 +38,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
@@ -46,21 +48,31 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private final String IP = "";
-    private final String GET_BROADCAST_REQUEST = "/LingliServer/ GetBroadcast";
-    private final String GET_LIFE_REQUEST = "/LingliServer/ GetService";
+    private final String IP = "http://192.168.23.178:8003";
+    private final String GET_BROADCAST_REQUEST = "/LingliServer/GetBroadcast";
+    private final String GET_LIFE_REQUEST = "/LingliServer/GetService";
+
+    private final int NOTIFY_BROADCAST_CHANGED = 0;
+    private final int NOTIFY_LIFE_INFO_CHANGED = 1;
+
+    private boolean networkState = false;
 
     private String location;
     private MaterialRefreshLayout materialRefreshLayout;
     private ListView mListView;
     private static boolean LOCAL_SELECTED = true;
-    private int[] to={R.id.author, R.id.article, R.id.date};   //这里是ListView显示每一列对应的list_item中控件的id
+    private int[] to={R.id.author, R.id.article, R.id.date, R.id.face};   //这里是ListView显示每一列对应的list_item中控件的id
     List<Map<String, Object>> localListItems = new ArrayList<Map<String, Object>>();
     List<Map<String, Object>> lifeListItems = new ArrayList<Map<String, Object>>();
+
+
+    SimpleAdapter localAdapter;
+    SimpleAdapter lifeAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,11 +99,11 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        final SimpleAdapter localAdapter = new SimpleAdapter(this, localListItems, R.layout.list_item_layout,
-                new String[] {"author", "article", "date"},
+        localAdapter = new SimpleAdapter(getApplicationContext(), localListItems, R.layout.list_item_layout,
+                new String[] {"author", "article", "date", "face"},
                 to);
-        final SimpleAdapter lifeAdapter = new SimpleAdapter(this, lifeListItems, R.layout.list_item_layout,
-                new String[] {"title", "article", "date"},
+        lifeAdapter = new SimpleAdapter(getApplicationContext(), lifeListItems, R.layout.list_item_layout,
+                new String[] {"title", "article", "date", "face"},
                 to);
 
         materialRefreshLayout = (MaterialRefreshLayout) findViewById(R.id.refresh);
@@ -104,14 +116,17 @@ public class MainActivity extends AppCompatActivity
             materialRefreshLayout.setMaterialRefreshListener(new MaterialRefreshListener() {
                 @Override
                 public void onRefresh(final MaterialRefreshLayout materialRefreshLayout) {
+
                     materialRefreshLayout.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             if (LOCAL_SELECTED){
                                 //下拉刷新
-                                loadLocalData(localAdapter);
+                                getBroadcast();
+                                loadLocalData();
                             } else {
-                                loadLifeData(lifeAdapter);
+                                getLifeIfo();
+                                loadLifeData();
                             }
 
                             // 结束下拉刷新...
@@ -123,18 +138,15 @@ public class MainActivity extends AppCompatActivity
 
                 @Override
                 public void onRefreshLoadMore(final MaterialRefreshLayout materialRefreshLayout) {
-                    super.onRefreshLoadMore(materialRefreshLayout);
-
                     materialRefreshLayout.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             if (LOCAL_SELECTED){
-                                //下拉刷新
+                                //上拉刷新
                                 loadLocalMore(localAdapter);
                             } else {
                                 loadLifeMore(lifeAdapter);
                             }
-
                             // 结束上拉刷新...
                             materialRefreshLayout.finishRefreshLoadMore();
                         }
@@ -143,11 +155,28 @@ public class MainActivity extends AppCompatActivity
 
                 @Override
                 public void onfinish() {
-                    Toast.makeText(getApplicationContext(), "刷新好了 ╰(￣▽￣)╭", Toast.LENGTH_LONG).show();
+                    if((LOCAL_SELECTED && networkState )|| (!LOCAL_SELECTED && networkState)){
+                        networkState = false;
+                        Toast.makeText(getApplicationContext(), "刷新好了 ╰(￣▽￣)╭", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "网络开小差了 〒▽〒", Toast.LENGTH_LONG).show();
+                    }
+
                 }
             });
         }
 
+        mListView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(getApplicationContext(), "刷新好了", Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Toast.makeText(getApplicationContext(), "╰(￣▽￣)╭", Toast.LENGTH_LONG).show();
+            }
+        });
 
     }
 
@@ -200,17 +229,9 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void loadLocalData(SimpleAdapter localAdapter) {
-        localListItems.clear();
-        for(int i = 0; i < 10; i++){
-            Map<String, Object> listItem = new HashMap<String, Object>();
-            listItem.put("author", "HunSem");
-            listItem.put("article", "啊是你倒是");
-            listItem.put("date", "08:40");
-            localListItems.add(listItem);
-        }
-        mListView.setAdapter(localAdapter);
+    private void loadLocalData() {
 
+        mListView.setAdapter(localAdapter);
         localAdapter.notifyDataSetChanged();
 
     }
@@ -221,23 +242,14 @@ public class MainActivity extends AppCompatActivity
         listItem.put("author", "HunSem");
         listItem.put("article", "打了卡升级了");
         listItem.put("date", "08:40");
+        listItem.put("face", R.drawable.heroes_01);
         localListItems.add(listItem);
         localAdapter.notifyDataSetChanged();
     }
 
-    private void loadLifeData(SimpleAdapter lifeAdapter) {
-        lifeListItems.clear();
-        for(int i = 0; i < 10; i++){
-            Map<String, Object> listItem = new HashMap<String, Object>();
-            listItem.put("title", "老板娘跑了！！");
-            listItem.put("article", "清仓大甩卖！");
-            listItem.put("date", "08:40");
-            lifeListItems.add(listItem);
-        }
+    private void loadLifeData() {
         mListView.setAdapter(lifeAdapter);
-
         lifeAdapter.notifyDataSetChanged();
-
     }
 
     private void loadLifeMore(SimpleAdapter lifeAdapter){
@@ -246,6 +258,7 @@ public class MainActivity extends AppCompatActivity
         listItem.put("title", "老板娘回来了！！");
         listItem.put("article", "优惠促销！");
         listItem.put("date", "08:40");
+        listItem.put("face", R.drawable.heroes_16);
         lifeListItems.add(listItem);
         lifeAdapter.notifyDataSetChanged();
     }
@@ -262,21 +275,34 @@ public class MainActivity extends AppCompatActivity
                     SharedPreferences pref = getSharedPreferences("Cookie", MODE_PRIVATE);
                     location  = pref.getString("location", "null");
 
+                    SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                    String date = sDateFormat.format(new java.util.Date());
 
                     params.add(new BasicNameValuePair("location", location));
+                    params.add(new BasicNameValuePair("date", date));
 
                     final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, "utf-8");//以UTF-8格式发送
                     httpPost.setEntity(entity);
                     HttpResponse httpResponse = httpclient.execute(httpPost);
                     if (httpResponse.getStatusLine().getStatusCode() == 200)//在200毫秒之内接收到返回值
                     {
+                        networkState = true;
                         HttpEntity entity1 = httpResponse.getEntity();
                         String response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
-                        // parsing JSON
-                        JSONObject result = new JSONObject(response); //Convert String to JSON Object
 
-                        //Log.d("json", "login:"+login + " name:"+name+" location:"+location);
-
+                        JSONArray result = new JSONArray(response); //Convert String to JSON Object
+                        for(int i = 0; i < result.length(); i++){
+                            Map<String, Object> listItem = new HashMap<String, Object>();
+                            JSONObject item = result.getJSONObject(i);
+                            listItem.put("author", item.getString("author"));
+                            listItem.put("article", item.getString("article"));
+                            listItem.put("date", item.getString("date").substring(11, 16));
+                            listItem.put("face", R.drawable.heroes_16);
+                            localListItems.add(listItem);
+                        }
+                        Message message = new Message();
+                        message.what = NOTIFY_BROADCAST_CHANGED;
+                        handler.sendMessage(message);//使用Message传递消息给线程
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -297,20 +323,34 @@ public class MainActivity extends AppCompatActivity
                     SharedPreferences pref = getSharedPreferences("Cookie", MODE_PRIVATE);
                     location  = pref.getString("location", "null");
 
+                    SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                    String date = sDateFormat.format(new java.util.Date());
+
                     params.add(new BasicNameValuePair("location", location));
+                    params.add(new BasicNameValuePair("date", date));
 
                     final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, "utf-8");//以UTF-8格式发送
                     httpPost.setEntity(entity);
                     HttpResponse httpResponse = httpclient.execute(httpPost);
                     if (httpResponse.getStatusLine().getStatusCode() == 200)//在200毫秒之内接收到返回值
                     {
+                        networkState = true;
                         HttpEntity entity1 = httpResponse.getEntity();
                         String response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
-                        // parsing JSON
-                        JSONObject result = new JSONObject(response); //Convert String to JSON Object
 
-                        //Log.d("json", "login:"+login + " name:"+name+" location:"+location);
-
+                        JSONArray result = new JSONArray(response); //Convert String to JSON Object
+                        for(int i = 0; i < result.length(); i++){
+                            Map<String, Object> listItem = new HashMap<String, Object>();
+                            JSONObject item = result.getJSONObject(i);
+                            listItem.put("title", item.getString("title"));
+                            listItem.put("article", item.getString("article"));
+                            listItem.put("date", item.getString("date").substring(11, 16));
+                            listItem.put("face", R.drawable.heroes_16);
+                            lifeListItems.add(listItem);
+                        }
+                        Message message = new Message();
+                        message.what = NOTIFY_LIFE_INFO_CHANGED;
+                        handler.sendMessage(message);//使用Message传递消息给线程
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -319,6 +359,30 @@ public class MainActivity extends AppCompatActivity
         }).start();
     }
 
+    private int getFace(){
+        Random rand = new Random();
+        int randNum = rand.nextInt(40)+1;
+        switch(randNum){
+            case 1:
+                return R.drawable.heroes_01;
+            default:
+                return R.drawable.heroes_01;
+        }
+    }
+
+    public Handler handler = new Handler() {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case NOTIFY_BROADCAST_CHANGED:
+                    loadLocalData();
+                    break;
+                case NOTIFY_LIFE_INFO_CHANGED:
+                    loadLifeData();
+                default:
+                    break;
+            }
+        }
+    };
 }
 
 
