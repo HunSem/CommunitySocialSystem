@@ -93,7 +93,7 @@ public class SingupActivity extends AppCompatActivity {
         //初始化定位参数
         mLocationOption = new AMapLocationClientOption();
         //设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
-        mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+        mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Battery_Saving);
         //设置是否返回地址信息（默认返回地址信息）
         mLocationOption.setNeedAddress(true);
         //设置是否只定位一次,默认为false
@@ -135,8 +135,8 @@ public class SingupActivity extends AppCompatActivity {
 //                        amapLocation.getAoiName();//获取当前定位点的AOI信息
 
                         location = amapLocation.getStreet();
-                        Log.d("city", location);
-                        mLocationClient.stopLocation();//停止定位
+                        //Log.d("city", location);
+                        //mLocationClient.stopLocation();//停止定位
 
                     } else {
                         //显示错误信息ErrCode是错误码，errInfo是错误信息，详见错误码表。

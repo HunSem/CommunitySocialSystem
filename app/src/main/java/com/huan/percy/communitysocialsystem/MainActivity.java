@@ -161,7 +161,6 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void onfinish() {
 
-
                 }
             });
         }
@@ -286,7 +285,7 @@ public class MainActivity extends AppCompatActivity
                     {
                         networkState = true;
                         int savePosition = 0;
-                        if(localListItems.size()!= 0){
+                        if(localListItems.size()!= 0 && (!timeFlag.equals(GET_LASTEST))){
                             savePosition = localListItems.size() - 1;
                         }
 
@@ -295,6 +294,7 @@ public class MainActivity extends AppCompatActivity
 
                         JSONArray result = new JSONArray(response); //Convert String to JSON Object
 
+                        FaceMatch faceMatch = new FaceMatch();
                         if(timeFlag.equals("0") && localListItems.size() > 0){
                             for(int i = result.length() - 1; i >= 0; i--){
                                 Map<String, Object> listItem = new HashMap<String, Object>();
@@ -302,7 +302,7 @@ public class MainActivity extends AppCompatActivity
                                 listItem.put("author", item.getString("author"));
                                 listItem.put("article", item.getString("article"));
                                 listItem.put("date", item.getString("date"));
-                                listItem.put("face", R.drawable.heroes_03);
+                                listItem.put("face", faceMatch.getLocalFace());
                                 localListItems.addFirst(listItem);
                             }
                         } else {
@@ -312,7 +312,7 @@ public class MainActivity extends AppCompatActivity
                                 listItem.put("author", item.getString("author"));
                                 listItem.put("article", item.getString("article"));
                                 listItem.put("date", item.getString("date"));
-                                listItem.put("face", R.drawable.heroes_03);
+                                listItem.put("face", faceMatch.getLocalFace());
                                 localListItems.add(listItem);
                             }
                         }
@@ -370,13 +370,14 @@ public class MainActivity extends AppCompatActivity
                     {
                         networkState = true;
                         int savePosition = 0;
-                        if(lifeListItems.size()!= 0){
+                        if(lifeListItems.size()!= 0 && (!timeFlag.equals(GET_LASTEST))){
                             savePosition = lifeListItems.size() - 1;
                         }
                         HttpEntity entity1 = httpResponse.getEntity();
                         String response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
 
                         JSONArray result = new JSONArray(response); //Convert String to JSON Object
+                        FaceMatch  faceMatch = new FaceMatch();
                         if(timeFlag.equals("0") && lifeListItems.size() > 0){
                             for(int i = result.length() - 1; i >= 0; i--){
                                 Map<String, Object> listItem = new HashMap<String, Object>();
@@ -384,7 +385,7 @@ public class MainActivity extends AppCompatActivity
                                 listItem.put("title", item.getString("title"));
                                 listItem.put("article", item.getString("article"));
                                 listItem.put("date", item.getString("date"));
-                                listItem.put("face", R.drawable.heroes_16);
+                                listItem.put("face", faceMatch.getLocalFace());
                                 lifeListItems.addFirst(listItem);
                             }
                         } else {
@@ -392,9 +393,9 @@ public class MainActivity extends AppCompatActivity
                                 Map<String, Object> listItem = new HashMap<String, Object>();
                                 JSONObject item = result.getJSONObject(i);
                                 listItem.put("title", item.getString("title"));
-                                listItem.put("title", item.getString("title"));
+                                listItem.put("article", item.getString("article"));
                                 listItem.put("date", item.getString("date"));
-                                listItem.put("face", R.drawable.heroes_16);
+                                listItem.put("face", faceMatch.getLocalFace());
                                 lifeListItems.add(listItem);
                             }
                         }
@@ -410,16 +411,7 @@ public class MainActivity extends AppCompatActivity
         }).start();
     }
 
-    private int getFace(){
-        Random rand = new Random();
-        int randNum = rand.nextInt(40)+1;
-        switch(randNum){
-            case 1:
-                return R.drawable.heroes_01;
-            default:
-                return R.drawable.heroes_01;
-        }
-    }
+
 
     public Handler handler = new Handler() {
         public void handleMessage(Message msg) {
