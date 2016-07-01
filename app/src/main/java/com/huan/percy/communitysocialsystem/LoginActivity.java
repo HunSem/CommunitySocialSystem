@@ -79,7 +79,8 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //start the Singup activity
                 Intent intent = new Intent(getApplicationContext(), SingupActivity.class);
-                startActivityForResult(intent, REQUEST_SINGUP);
+                startActivity(intent);
+                finish();
             }
         });
     }

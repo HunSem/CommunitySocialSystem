@@ -82,6 +82,8 @@ public class SingupActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //Finish the registration screen and return to the Login activity
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(intent);
                 finish();
             }
         });
@@ -187,10 +189,18 @@ public class SingupActivity extends AppCompatActivity {
         );
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
     public void onSignupSuccess(){
         _signupButton.setEnabled(true);
         setResult(RESULT_OK, null);
         Toast.makeText(getBaseContext(), "创建成功", Toast.LENGTH_LONG).show();
+        saveCookie();
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
@@ -268,6 +278,19 @@ public class SingupActivity extends AppCompatActivity {
                 }
             }
         }).start();
+    }
+
+    public void saveCookie(){
+        SharedPreferences.Editor editor = getSharedPreferences("Cookie",
+                MODE_PRIVATE).edit();
+
+        registerResult = true;
+        editor.putBoolean("logined", registerResult);
+        editor.putString("email", _emailText.getText().toString());
+        editor.putString("pwd", _passwordText.getText().toString());
+        editor.putString("name", name);
+        editor.putString("location",location);
+        editor.apply();
     }
 }
 

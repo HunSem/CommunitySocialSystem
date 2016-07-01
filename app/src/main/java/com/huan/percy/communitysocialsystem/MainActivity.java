@@ -126,10 +126,10 @@ public class MainActivity extends AppCompatActivity
                             if (LOCAL_SELECTED){
                                 //下拉刷新
                                 getBroadcast(GET_LASTEST);
-                                loadLocalData();
+                                //loadLocalData();
                             } else {
                                 getLifeIfo(GET_LASTEST);
-                                loadLifeData();
+                                //loadLifeData();
                             }
 
                             // 结束下拉刷新...
@@ -147,10 +147,10 @@ public class MainActivity extends AppCompatActivity
                             if (LOCAL_SELECTED){
                                 //上拉刷新
                                 getBroadcast(GET_BEFORE);
-                                loadLocalData();
+                                //loadLocalData();
                             } else {
                                 getLifeIfo(GET_BEFORE);
-                                loadLifeData();
+                                //loadLifeData();
                             }
                             // 结束上拉刷新...
                             materialRefreshLayout.finishRefreshLoadMore();
@@ -229,16 +229,18 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void loadLocalData() {
+    private void loadLocalData(int savePosition) {
 
         mListView.setAdapter(localAdapter);
+        mListView.setSelection(savePosition);
         localAdapter.notifyDataSetChanged();
 
     }
 
 
-    private void loadLifeData() {
+    private void loadLifeData(int savePosition) {
         mListView.setAdapter(lifeAdapter);
+        mListView.setSelection(savePosition);
         lifeAdapter.notifyDataSetChanged();
     }
 
@@ -283,6 +285,11 @@ public class MainActivity extends AppCompatActivity
                     if (httpResponse.getStatusLine().getStatusCode() == 200)//在200毫秒之内接收到返回值
                     {
                         networkState = true;
+                        int savePosition = 0;
+                        if(localListItems.size()!= 0){
+                            savePosition = localListItems.size() - 1;
+                        }
+
                         HttpEntity entity1 = httpResponse.getEntity();
                         String response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
 
@@ -311,6 +318,7 @@ public class MainActivity extends AppCompatActivity
                         }
                         Message message = new Message();
                         message.what = NOTIFY_BROADCAST_CHANGED;
+                        message.obj = savePosition;
                         handler.sendMessage(message);//使用Message传递消息给线程
                     }
                 } catch (Exception e) {
@@ -361,6 +369,10 @@ public class MainActivity extends AppCompatActivity
                     if (httpResponse.getStatusLine().getStatusCode() == 200)//在200毫秒之内接收到返回值
                     {
                         networkState = true;
+                        int savePosition = 0;
+                        if(lifeListItems.size()!= 0){
+                            savePosition = lifeListItems.size() - 1;
+                        }
                         HttpEntity entity1 = httpResponse.getEntity();
                         String response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
 
@@ -388,6 +400,7 @@ public class MainActivity extends AppCompatActivity
                         }
                         Message message = new Message();
                         message.what = NOTIFY_LIFE_INFO_CHANGED;
+                        message.obj = savePosition;
                         handler.sendMessage(message);//使用Message传递消息给线程
                     }
                 } catch (Exception e) {
@@ -410,12 +423,13 @@ public class MainActivity extends AppCompatActivity
 
     public Handler handler = new Handler() {
         public void handleMessage(Message msg) {
+            int savePosition = (int) msg.obj;
             switch (msg.what) {
                 case NOTIFY_BROADCAST_CHANGED:
-                    loadLocalData();
+                    loadLocalData(savePosition);
                     break;
                 case NOTIFY_LIFE_INFO_CHANGED:
-                    loadLifeData();
+                    loadLifeData(savePosition);
                 default:
                     break;
             }

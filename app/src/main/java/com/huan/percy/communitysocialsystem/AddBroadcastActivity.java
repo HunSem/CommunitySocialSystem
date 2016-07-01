@@ -143,6 +143,7 @@ public class AddBroadcastActivity extends AppCompatActivity {
                     location  = pref.getString("location", "null");
                     email = pref.getString("email", "null");
 
+                    Log.d("email", email);
                     params.add(new BasicNameValuePair("id", email));
                     params.add(new BasicNameValuePair("article", content));
                     params.add(new BasicNameValuePair("location", location));
