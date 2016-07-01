@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -59,6 +60,8 @@ public class MainActivity extends AppCompatActivity
 
     private final int NOTIFY_BROADCAST_CHANGED = 0;
     private final int NOTIFY_LIFE_INFO_CHANGED = 1;
+    private final String GET_LASTEST = "0";
+    private final String GET_BEFORE = "1";
 
     private boolean networkState = false;
 
@@ -67,8 +70,8 @@ public class MainActivity extends AppCompatActivity
     private ListView mListView;
     private static boolean LOCAL_SELECTED = true;
     private int[] to={R.id.author, R.id.article, R.id.date, R.id.face};   //这里是ListView显示每一列对应的list_item中控件的id
-    List<Map<String, Object>> localListItems = new ArrayList<Map<String, Object>>();
-    List<Map<String, Object>> lifeListItems = new ArrayList<Map<String, Object>>();
+    LinkedList<Map<String, Object>> localListItems = new LinkedList<Map<String, Object>>();
+    LinkedList<Map<String, Object>> lifeListItems = new LinkedList<Map<String, Object>>();
 
 
     SimpleAdapter localAdapter;
@@ -122,10 +125,10 @@ public class MainActivity extends AppCompatActivity
                         public void run() {
                             if (LOCAL_SELECTED){
                                 //下拉刷新
-                                getBroadcast();
+                                getBroadcast(GET_LASTEST);
                                 loadLocalData();
                             } else {
-                                getLifeIfo();
+                                getLifeIfo(GET_LASTEST);
                                 loadLifeData();
                             }
 
@@ -143,9 +146,11 @@ public class MainActivity extends AppCompatActivity
                         public void run() {
                             if (LOCAL_SELECTED){
                                 //上拉刷新
-                                loadLocalMore(localAdapter);
+                                getBroadcast(GET_BEFORE);
+                                loadLocalData();
                             } else {
-                                loadLifeMore(lifeAdapter);
+                                getLifeIfo(GET_BEFORE);
+                                loadLifeData();
                             }
                             // 结束上拉刷新...
                             materialRefreshLayout.finishRefreshLoadMore();
@@ -155,12 +160,7 @@ public class MainActivity extends AppCompatActivity
 
                 @Override
                 public void onfinish() {
-                    if((LOCAL_SELECTED && networkState )|| (!LOCAL_SELECTED && networkState)){
-                        networkState = false;
-                        Toast.makeText(getApplicationContext(), "刷新好了 ╰(￣▽￣)╭", Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(getApplicationContext(), "网络开小差了 〒▽〒", Toast.LENGTH_LONG).show();
-                    }
+
 
                 }
             });
@@ -178,13 +178,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        localListItems.clear();
-        lifeListItems.clear();
     }
 
     @Override
@@ -243,34 +236,13 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    private void loadLocalMore(SimpleAdapter localAdapter){
-
-        Map<String, Object> listItem = new HashMap<String, Object>();
-        listItem.put("author", "HunSem");
-        listItem.put("article", "打了卡升级了");
-        listItem.put("date", "08:40");
-        listItem.put("face", R.drawable.heroes_01);
-        localListItems.add(listItem);
-        localAdapter.notifyDataSetChanged();
-    }
 
     private void loadLifeData() {
         mListView.setAdapter(lifeAdapter);
         lifeAdapter.notifyDataSetChanged();
     }
 
-    private void loadLifeMore(SimpleAdapter lifeAdapter){
-
-        Map<String, Object> listItem = new HashMap<String, Object>();
-        listItem.put("title", "老板娘回来了！！");
-        listItem.put("article", "优惠促销！");
-        listItem.put("date", "08:40");
-        listItem.put("face", R.drawable.heroes_16);
-        lifeListItems.add(listItem);
-        lifeAdapter.notifyDataSetChanged();
-    }
-
-    public void getBroadcast() {
+    public void getBroadcast(final String timeFlag) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -285,8 +257,25 @@ public class MainActivity extends AppCompatActivity
                     SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
                     String date = sDateFormat.format(new java.util.Date());
 
+                    //首次刷新
+                    if (localListItems.size() == 0){
+                        params.add(new BasicNameValuePair("flag", GET_BEFORE));
+                    } else {
+                        params.add(new BasicNameValuePair("flag", timeFlag));
+                    }
+
                     params.add(new BasicNameValuePair("location", location));
+                    //判断是下拉刷新还是上拉刷新
+                    if(timeFlag.equals("0") && localListItems.size() > 0){
+                        date = localListItems.get(0).get("date").toString();
+                        Log.d("time", "下拉"+date);
+                    } else if (timeFlag.equals("1") && localListItems.size() > 0){
+                        date = localListItems.get(localListItems.size() - 1).get("date").toString();
+                        Log.d("time", "上拉"+date);
+                    }
+
                     params.add(new BasicNameValuePair("date", date));
+                    Log.d("time", "first"+date);
 
                     final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, "utf-8");//以UTF-8格式发送
                     httpPost.setEntity(entity);
@@ -298,14 +287,27 @@ public class MainActivity extends AppCompatActivity
                         String response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
 
                         JSONArray result = new JSONArray(response); //Convert String to JSON Object
-                        for(int i = 0; i < result.length(); i++){
-                            Map<String, Object> listItem = new HashMap<String, Object>();
-                            JSONObject item = result.getJSONObject(i);
-                            listItem.put("author", item.getString("author"));
-                            listItem.put("article", item.getString("article"));
-                            listItem.put("date", item.getString("date").substring(11, 16));
-                            listItem.put("face", R.drawable.heroes_16);
-                            localListItems.add(listItem);
+
+                        if(timeFlag.equals("0") && localListItems.size() > 0){
+                            for(int i = result.length() - 1; i >= 0; i--){
+                                Map<String, Object> listItem = new HashMap<String, Object>();
+                                JSONObject item = result.getJSONObject(i);
+                                listItem.put("author", item.getString("author"));
+                                listItem.put("article", item.getString("article"));
+                                listItem.put("date", item.getString("date"));
+                                listItem.put("face", R.drawable.heroes_03);
+                                localListItems.addFirst(listItem);
+                            }
+                        } else {
+                            for(int i = 0; i < result.length(); i++){
+                                Map<String, Object> listItem = new HashMap<String, Object>();
+                                JSONObject item = result.getJSONObject(i);
+                                listItem.put("author", item.getString("author"));
+                                listItem.put("article", item.getString("article"));
+                                listItem.put("date", item.getString("date"));
+                                listItem.put("face", R.drawable.heroes_03);
+                                localListItems.add(listItem);
+                            }
                         }
                         Message message = new Message();
                         message.what = NOTIFY_BROADCAST_CHANGED;
@@ -318,7 +320,7 @@ public class MainActivity extends AppCompatActivity
         }).start();
     }
 
-    private void getLifeIfo(){
+    private void getLifeIfo(final String timeFlag){
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -333,6 +335,23 @@ public class MainActivity extends AppCompatActivity
                     SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
                     String date = sDateFormat.format(new java.util.Date());
 
+                    //首次刷新
+                    if (lifeListItems.size() == 0){
+                        params.add(new BasicNameValuePair("flag", GET_BEFORE));
+                    } else {
+                        params.add(new BasicNameValuePair("flag", timeFlag));
+                    }
+
+                    params.add(new BasicNameValuePair("location", location));
+                    //判断是下拉刷新还是上拉刷新
+                    if(timeFlag.equals("0") && lifeListItems.size() > 0){
+                        date = lifeListItems.get(0).get("date").toString();
+                        Log.d("time", "下拉"+date);
+                    } else if (timeFlag.equals("1") && lifeListItems.size() > 0){
+                        date = lifeListItems.get(lifeListItems.size() - 1).get("date").toString();
+                        Log.d("time", "上拉"+date);
+                    }
+
                     params.add(new BasicNameValuePair("location", location));
                     params.add(new BasicNameValuePair("date", date));
 
@@ -346,14 +365,26 @@ public class MainActivity extends AppCompatActivity
                         String response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
 
                         JSONArray result = new JSONArray(response); //Convert String to JSON Object
-                        for(int i = 0; i < result.length(); i++){
-                            Map<String, Object> listItem = new HashMap<String, Object>();
-                            JSONObject item = result.getJSONObject(i);
-                            listItem.put("title", item.getString("title"));
-                            listItem.put("article", item.getString("article"));
-                            listItem.put("date", item.getString("date").substring(11, 16));
-                            listItem.put("face", R.drawable.heroes_16);
-                            lifeListItems.add(listItem);
+                        if(timeFlag.equals("0") && lifeListItems.size() > 0){
+                            for(int i = result.length() - 1; i >= 0; i--){
+                                Map<String, Object> listItem = new HashMap<String, Object>();
+                                JSONObject item = result.getJSONObject(i);
+                                listItem.put("title", item.getString("title"));
+                                listItem.put("article", item.getString("article"));
+                                listItem.put("date", item.getString("date"));
+                                listItem.put("face", R.drawable.heroes_16);
+                                lifeListItems.addFirst(listItem);
+                            }
+                        } else {
+                            for(int i = 0; i < result.length(); i++){
+                                Map<String, Object> listItem = new HashMap<String, Object>();
+                                JSONObject item = result.getJSONObject(i);
+                                listItem.put("title", item.getString("title"));
+                                listItem.put("title", item.getString("title"));
+                                listItem.put("date", item.getString("date"));
+                                listItem.put("face", R.drawable.heroes_16);
+                                lifeListItems.add(listItem);
+                            }
                         }
                         Message message = new Message();
                         message.what = NOTIFY_LIFE_INFO_CHANGED;
