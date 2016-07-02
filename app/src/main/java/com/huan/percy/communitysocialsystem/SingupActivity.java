@@ -167,7 +167,7 @@ public class SingupActivity extends AppCompatActivity {
         initView();
 
         final String videoPath = Uri.parse("android.resource://" + getPackageName() + "/"
-                + R.raw.falldown).toString();
+                + R.raw.signup).toString();
         myVideoView.setVideoPath(videoPath);
         myVideoView.start();
         myVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {

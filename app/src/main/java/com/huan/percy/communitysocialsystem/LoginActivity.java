@@ -94,7 +94,7 @@ public class LoginActivity extends AppCompatActivity {
         initView();
 
         final String videoPath = Uri.parse("android.resource://" + getPackageName() + "/"
-                + R.raw.falldown).toString();
+                + R.raw.login).toString();
         myVideoView.setVideoPath(videoPath);
         myVideoView.start();
         myVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
