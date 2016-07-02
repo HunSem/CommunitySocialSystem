@@ -3,15 +3,21 @@ package com.huan.percy.communitysocialsystem;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -57,9 +63,17 @@ public class SingupActivity extends AppCompatActivity {
     //声明mLocationOption对象
     public AMapLocationClientOption mLocationOption = null;
 
+    private VideoView myVideoView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            Window w = getWindow(); // in Activity's onCreate() for instance
+            w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        }
+
         setContentView(R.layout.activity_singup);
         ButterKnife.inject(this);
 
@@ -97,7 +111,7 @@ public class SingupActivity extends AppCompatActivity {
         //设置是否返回地址信息（默认返回地址信息）
         mLocationOption.setNeedAddress(true);
         //设置是否只定位一次,默认为false
-        mLocationOption.setOnceLocation(false);
+        mLocationOption.setOnceLocation(true);
         //设置是否强制刷新WIFI，默认为强制刷新
         mLocationOption.setWifiActiveScan(true);
         //设置是否允许模拟位置,默认为false，不允许模拟位置
@@ -135,7 +149,7 @@ public class SingupActivity extends AppCompatActivity {
 //                        amapLocation.getAoiName();//获取当前定位点的AOI信息
 
                         location = amapLocation.getStreet();
-                        //Log.d("city", location);
+                        Log.d("city", location);
                         //mLocationClient.stopLocation();//停止定位
 
                     } else {
@@ -149,6 +163,33 @@ public class SingupActivity extends AppCompatActivity {
         };
         //设置定位回调监听
         mLocationClient.setLocationListener(mLocationListener);
+
+        initView();
+
+        final String videoPath = Uri.parse("android.resource://" + getPackageName() + "/"
+                + R.raw.falldown).toString();
+        myVideoView.setVideoPath(videoPath);
+        myVideoView.start();
+        myVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                mp.start();
+                mp.setLooping(true);
+
+            }
+        });
+
+        myVideoView
+                .setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        myVideoView.setVideoPath(videoPath);
+                        myVideoView.start();
+
+                    }
+                });
     }
 
     public void signUp(){
@@ -280,6 +321,11 @@ public class SingupActivity extends AppCompatActivity {
         }).start();
     }
 
+    private void initView() {
+
+        myVideoView = (VideoView) findViewById(R.id.videoView);
+
+    }
     public void saveCookie(){
         SharedPreferences.Editor editor = getSharedPreferences("Cookie",
                 MODE_PRIVATE).edit();

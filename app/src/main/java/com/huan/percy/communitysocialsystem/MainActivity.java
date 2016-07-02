@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity
     private final String GET_BEFORE = "1";
 
     private boolean networkState = false;
+    private boolean isMore = false;
 
     private String location;
     private MaterialRefreshLayout materialRefreshLayout;
@@ -160,7 +161,17 @@ public class MainActivity extends AppCompatActivity
 
                 @Override
                 public void onfinish() {
-
+                    if(!networkState){
+                        Toast.makeText(getApplicationContext(),
+                                "网络开小差了 ╮(╯▽╰)╭", Toast.LENGTH_LONG).show();
+                    } else if(networkState && isMore){
+                        networkState = false;
+                        Toast.makeText(getApplicationContext(),
+                                "来了来了 ╰(￣▽￣)╭", Toast.LENGTH_LONG).show();
+                    } else if (networkState && !isMore){
+                        Toast.makeText(getApplicationContext(),
+                                "已经没有了 ╯﹏╰", Toast.LENGTH_LONG).show();
+                    }
                 }
             });
         }
@@ -204,7 +215,8 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_offline) {
+            offline();
             return true;
         }
 
@@ -283,7 +295,6 @@ public class MainActivity extends AppCompatActivity
                     HttpResponse httpResponse = httpclient.execute(httpPost);
                     if (httpResponse.getStatusLine().getStatusCode() == 200)//在200毫秒之内接收到返回值
                     {
-                        networkState = true;
                         int savePosition = 0;
                         if(localListItems.size()!= 0 && (!timeFlag.equals(GET_LASTEST))){
                             savePosition = localListItems.size() - 1;
@@ -296,6 +307,7 @@ public class MainActivity extends AppCompatActivity
 
                         FaceMatch faceMatch = new FaceMatch();
                         if(timeFlag.equals("0") && localListItems.size() > 0){
+                            isMore = true;
                             for(int i = result.length() - 1; i >= 0; i--){
                                 Map<String, Object> listItem = new HashMap<String, Object>();
                                 JSONObject item = result.getJSONObject(i);
@@ -306,6 +318,7 @@ public class MainActivity extends AppCompatActivity
                                 localListItems.addFirst(listItem);
                             }
                         } else {
+                            isMore = true;
                             for(int i = 0; i < result.length(); i++){
                                 Map<String, Object> listItem = new HashMap<String, Object>();
                                 JSONObject item = result.getJSONObject(i);
@@ -368,7 +381,6 @@ public class MainActivity extends AppCompatActivity
                     HttpResponse httpResponse = httpclient.execute(httpPost);
                     if (httpResponse.getStatusLine().getStatusCode() == 200)//在200毫秒之内接收到返回值
                     {
-                        networkState = true;
                         int savePosition = 0;
                         if(lifeListItems.size()!= 0 && (!timeFlag.equals(GET_LASTEST))){
                             savePosition = lifeListItems.size() - 1;
@@ -379,6 +391,7 @@ public class MainActivity extends AppCompatActivity
                         JSONArray result = new JSONArray(response); //Convert String to JSON Object
                         FaceMatch  faceMatch = new FaceMatch();
                         if(timeFlag.equals("0") && lifeListItems.size() > 0){
+                            isMore = true;
                             for(int i = result.length() - 1; i >= 0; i--){
                                 Map<String, Object> listItem = new HashMap<String, Object>();
                                 JSONObject item = result.getJSONObject(i);
@@ -389,6 +402,7 @@ public class MainActivity extends AppCompatActivity
                                 lifeListItems.addFirst(listItem);
                             }
                         } else {
+                            isMore = true;
                             for(int i = 0; i < result.length(); i++){
                                 Map<String, Object> listItem = new HashMap<String, Object>();
                                 JSONObject item = result.getJSONObject(i);
@@ -418,15 +432,32 @@ public class MainActivity extends AppCompatActivity
             int savePosition = (int) msg.obj;
             switch (msg.what) {
                 case NOTIFY_BROADCAST_CHANGED:
+                    networkState = true;
                     loadLocalData(savePosition);
                     break;
                 case NOTIFY_LIFE_INFO_CHANGED:
+                    networkState = true;
                     loadLifeData(savePosition);
                 default:
                     break;
             }
         }
     };
+
+    private void offline(){
+        SharedPreferences.Editor editor = getSharedPreferences("Cookie",
+                MODE_PRIVATE).edit();
+
+        editor.putBoolean("logined", false);
+        editor.putString("email", "");
+        editor.putString("pwd", "");
+        editor.putString("name", "");
+        editor.putString("location","");
+        editor.apply();
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(intent);
+        this.finish();
+    }
 }
 
 
