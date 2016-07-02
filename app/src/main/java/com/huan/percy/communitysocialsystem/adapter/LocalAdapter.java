@@ -1,6 +1,7 @@
 package com.huan.percy.communitysocialsystem.adapter;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,104 +13,67 @@ import com.huan.percy.communitysocialsystem.R;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Created by Percy on 2016/7/2.
  */
-public class LocalAdapter extends SimpleAdapter {
-    private List<? extends Map<String, ?>> mData;
+public class LocalAdapter extends RecyclerView.Adapter<LocalAdapter.ViewHolder> {
+    private LinkedList<Map<String, Object>> mDataset;
 
-    private int mResource;
+    // Provide a reference to the views for each data item
+    // Complex data items may need more than one view per item, and
+    // you provide access to all the views for a data item in a view holder
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        // each data item is just a string in this case
+        protected TextView author;
+        protected TextView article;
+        protected TextView date;
+        protected ImageView face;
 
-    private String[] mFrom;
-
-    private int[] mTo;
-
-    private LayoutInflater mInflater;
-
-    private ViewBinder mViewBinder;
-
-    private static class ViewHolder {
-        TextView author;
-        TextView article;
-        TextView time;
-        ImageView face;
-    }
-
-    /**
-     * Constructor
-     *
-     * @param context  The context where the View associated with this SimpleAdapter is running
-     * @param data     A List of Maps. Each entry in the List corresponds to one row in the list. The
-     *                 Maps contain the data for each row, and should include all the entries specified in
-     *                 "from"
-     * @param resource Resource identifier of a view layout that defines the views for this list
-     *                 item. The layout file should include at least those named views defined in "to"
-     * @param from     A list of column names that will be added to the Map associated with each
-     *                 item.
-     * @param to       The views that should display column in the "from" parameter. These should all be
-     *                 TextViews. The first N views in this list are given the values of the first N columns
-     */
-    public LocalAdapter(Context context, List<? extends Map<String, ?>> data, int resource, String[] from, int[] to) {
-        super(context, data, resource, from, to);
-        mData = data;
-        mResource = resource;
-        mFrom = from;
-        mTo = to;
-        mInflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    }
-
-    @Override
-    public int getCount() {
-        return mData.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return mData.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-
-
-        final View view = super.getView(position, convertView, parent);
-
-        ViewHolder holder = (ViewHolder) view.getTag();
-        if(holder == null) {
-            holder = new ViewHolder();
-            holder.author = (TextView) view.findViewById(R.id.author);
-            holder.time = (TextView) view.findViewById(R.id.date);
-            holder.article = (TextView) view.findViewById(R.id.article);
-            holder.face = (ImageView) view.findViewById(R.id.face);
-
-            view.setTag(holder);
-            holder.author.setText(mData.get(position).get("author").toString());
-            holder.article.setText(mData.get(position).get("article").toString());
-            holder.face.setImageResource(Integer.parseInt(mData.get(position).get("face").toString()));
-
-            String date = mData.get(position).get("date").toString();
-            SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-            String nowDay = sDateFormat.format(new java.util.Date()).substring(9, 11);
-            if(date.substring(9, 11).equals(nowDay)){
-                holder.time.setText(date.substring(12, 17));
-            } else if((Integer.parseInt(date.substring(9, 11))+1) == Integer.parseInt(nowDay)){
-                holder.time.setText("昨天 "+ date.substring(12, 17));
-            } else {
-                holder.time.setText(date.substring(6, 17));
-            }
-
+        public ViewHolder(View v) {
+            super(v);
+            author =  (TextView) v.findViewById(R.id.author);
+            article = (TextView)  v.findViewById(R.id.article);
+            date = (TextView)  v.findViewById(R.id.date);
+            face = (ImageView) v.findViewById(R.id.face);
         }
+    }
 
-        return view;
+    // Provide a suitable constructor (depends on the kind of dataset)
+    public LocalAdapter(LinkedList<Map<String, Object>> myDataset) {
+        this.mDataset = myDataset;
+    }
+
+    // Create new views (invoked by the layout manager)
+    @Override
+    public LocalAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+                                                   int viewType) {
+        // create a new view
+        View v = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.list_item_layout, parent, false);
+        // set the view's size, margins, paddings and layout parameters
+        ViewHolder vh = new ViewHolder(v);
+        return vh;
+    }
+
+    // Replace the contents of a view (invoked by the layout manager)
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        // - get element from your dataset at this position
+        // - replace the contents of the view with that element
+        holder.author.setText(mDataset.get(position).get("author").toString());
+        holder.article.setText(mDataset.get(position).get("article").toString());
+        holder.date.setText(mDataset.get(position).get("date").toString());
+        holder.face.setImageResource(Integer.parseInt(mDataset.get(position).get("face").toString()));
+    }
+
+    // Return the size of your dataset (invoked by the layout manager)
+    @Override
+    public int getItemCount() {
+        return mDataset.size();
     }
 }
 
