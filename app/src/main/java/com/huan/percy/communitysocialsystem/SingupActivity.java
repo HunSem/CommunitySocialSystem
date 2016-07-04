@@ -333,4 +333,3 @@ public class SingupActivity extends AppCompatActivity {
         editor.apply();
     }
 }
-

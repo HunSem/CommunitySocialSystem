@@ -68,7 +68,7 @@ public class LoginActivity extends AppCompatActivity {
             w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         }
 
-            setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_login);
         ButterKnife.inject(this);
 
         if (checkCookie()){
@@ -155,7 +155,7 @@ public class LoginActivity extends AppCompatActivity {
                         progressDialog.dismiss();
                     }
                 }
-        , 3000);
+                , 3000);
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
