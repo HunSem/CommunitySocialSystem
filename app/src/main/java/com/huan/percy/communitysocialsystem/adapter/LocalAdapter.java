@@ -31,8 +31,6 @@ public class LocalAdapter extends RecyclerView.Adapter<LocalAdapter.ViewHolder> 
         return new ViewHolder(view);
     }
 
-
-
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
         viewHolder.author_tv.setText(list.get(position).get("author").toString());
