@@ -457,10 +457,14 @@ public class MainActivity extends AppCompatActivity
                 showIntro(fab, "Add", getString(R.string.tip_add), FocusGravity.CENTER);
                 break;
             case "Add":
+                showIntro(toolbar, "More", getString(R.string.tip_more), FocusGravity.CENTER);
+                break;
+            case "More":
                 showIntro(drawer, "Change", getString(R.string.tip_drawer), FocusGravity.LEFT);
                 break;
             case "Change":
                 showIntro(toolbar, "Tool", getString(R.string.tip_offline), FocusGravity.RIGHT);
+                break;
             default:
                 break;
         }

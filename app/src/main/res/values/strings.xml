@@ -71,5 +71,6 @@
     <string name="tip_add">有什么新鲜有趣的事想要分享，就点这里。\nヾ(≧∇≦*)ゝ</string>
     <string name="tip_drawer">滑动左边的抽屉，可以在居民广播和生活服务信息间切换哟！\n(｡･∀･)ﾉﾞ</string>
     <string name="tip_offline">在这可以退出登录哟~ \n₍₍ ◝(　ﾟ∀ ﾟ )◟⁾⁾不送ﾞ</string>
-    <string name="tip_broadcast">在这可以看到社区内其他居民的广播动态。\n还有社区内的一些重要通知和消息。\n(*^▽^*)</string>
+    <string name="tip_broadcast">在这可以看到社区内其他居民的广播动态。当然也还有社区内的一些重要通知和消息。\n如果什么都没有别着急，因为你是这个社区內第一个用户哟~\n(*^▽^*)</string>
+    <string name="tip_more">下拉可以刷新哟~ \n●▽●</string>
 </resources>
