@@ -409,10 +409,31 @@ public class MainActivity extends AppCompatActivity
             switch (msg.what) {
                 case NOTIFY_BROADCAST_CHANGED:
                     networkState = true;
+
+                    if (localListItems.size() == 0){
+                        SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                        String nowDate = sDateFormat.format(new java.util.Date());
+                        Map<String, Object> listItem = new HashMap<String, Object>();
+                        listItem.put("author", "邻里");
+                        listItem.put("article", getString(R.string.init_data));
+                        listItem.put("date", nowDate);
+                        listItem.put("face", R.drawable.bee);
+                        localListItems.addFirst(listItem);
+                    }
                     loadLocalData();
                     break;
                 case NOTIFY_LIFE_INFO_CHANGED:
                     networkState = true;
+                    if (lifeListItems.size() == 0){
+                        SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                        String nowDate = sDateFormat.format(new java.util.Date());
+                        Map<String, Object> listItem = new HashMap<String, Object>();
+                        listItem.put("title", "邻里");
+                        listItem.put("article", getString(R.string.init_life));
+                        listItem.put("date", nowDate);
+                        listItem.put("face", R.drawable.bee);
+                        lifeListItems.addFirst(listItem);
+                    }
                     loadLifeData();
                 default:
                     break;
@@ -479,6 +500,7 @@ public class MainActivity extends AppCompatActivity
         //LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         //recyclerView.setLayoutManager(linearLayoutManager);
         if (LOCAL_SELECTED){
+
             localAdapter = new LocalAdapter(localListItems);
             mRecyclerView.setAdapter(localAdapter);
         } else{
@@ -487,6 +509,8 @@ public class MainActivity extends AppCompatActivity
         }
 
     }
+
+
 }
 
 

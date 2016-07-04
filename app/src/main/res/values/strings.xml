@@ -73,4 +73,6 @@
     <string name="tip_offline">在这可以退出登录哟~ \n₍₍ ◝(　ﾟ∀ ﾟ )◟⁾⁾不送ﾞ</string>
     <string name="tip_broadcast">在这可以看到社区内其他居民的广播动态。当然也还有社区内的一些重要通知和消息。\n如果什么都没有别着急，因为你是这个社区內第一个用户哟~\n(*^▽^*)</string>
     <string name="tip_more">下拉可以刷新哟~ \n●▽●</string>
+    <string name="init_data">你是该社区的第一个用户哟，这里还空空如也~\n快和朋友们发送一些新动态吧</string>
+    <string name="init_life">这里会不定期推送一些您所在社区的生活服务信息哟~</string>
 </resources>
