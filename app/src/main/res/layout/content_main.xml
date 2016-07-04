@@ -16,13 +16,11 @@
         android:layout_height="match_parent"
         app:isLoadMore="true"
         android:id="@+id/refresh">
-        <ListView
-            android:id="@+id/list_view"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:divider="#00000000"
-            android:clickable="true"
-            android:scrollbarStyle="outsideOverlay"/>
+            android:layout_height="match_parent">
+        </android.support.v7.widget.RecyclerView>
     </com.cjj.MaterialRefreshLayout>
 
 </LinearLayout >

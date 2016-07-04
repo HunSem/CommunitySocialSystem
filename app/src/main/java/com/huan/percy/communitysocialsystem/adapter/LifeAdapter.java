@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.huan.percy.communitysocialsystem.R;
 
 import java.text.SimpleDateFormat;
@@ -12,9 +13,9 @@ import java.util.LinkedList;
 import java.util.Map;
 
 /**
- * Created by Percy on 2016/7/2.
+ * Created by Percy on 2016/7/3.
  */
-public class LocalAdapter extends RecyclerView.Adapter<LocalAdapter.ViewHolder> {
+public class LifeAdapter extends RecyclerView.Adapter<LifeAdapter.ViewHolder>{
     private LinkedList<Map<String, Object>> list;
 
     /**
@@ -22,7 +23,7 @@ public class LocalAdapter extends RecyclerView.Adapter<LocalAdapter.ViewHolder> 
      *
      * @param list
      */
-    public LocalAdapter(LinkedList<Map<String, Object>> list) {
+    public LifeAdapter(LinkedList<Map<String, Object>> list) {
         this.list = list;
     }
     @Override
@@ -32,10 +33,9 @@ public class LocalAdapter extends RecyclerView.Adapter<LocalAdapter.ViewHolder> 
     }
 
 
-
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
-        viewHolder.author_tv.setText(list.get(position).get("author").toString());
+        viewHolder.title_tv.setText(list.get(position).get("title").toString());
         viewHolder.article_tv.setText(list.get(position).get("article").toString());
         viewHolder.date_tv.setText(analyzeTime(list.get(position).get("date").toString()));
         viewHolder.face.setImageResource((int)list.get(position).get("face"));
@@ -48,14 +48,14 @@ public class LocalAdapter extends RecyclerView.Adapter<LocalAdapter.ViewHolder> 
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView author_tv;
+        public TextView title_tv;
         public TextView article_tv;
         public TextView date_tv;
         public ImageView face;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            author_tv = (TextView) itemView.findViewById(R.id.author);
+            title_tv = (TextView) itemView.findViewById(R.id.author);
             article_tv = (TextView) itemView.findViewById(R.id.article);
             date_tv = (TextView) itemView.findViewById(R.id.date);
             face = (ImageView) itemView.findViewById(R.id.face);
@@ -84,6 +84,3 @@ public class LocalAdapter extends RecyclerView.Adapter<LocalAdapter.ViewHolder> 
         else{return date.substring(5, 16);}
     }
 }
-
-
-

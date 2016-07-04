@@ -2,15 +2,12 @@ package com.huan.percy.communitysocialsystem;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateFormat;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -28,6 +25,8 @@ import android.widget.Toast;
 
 import com.cjj.MaterialRefreshLayout;
 import com.cjj.MaterialRefreshListener;
+import com.huan.percy.communitysocialsystem.adapter.LifeAdapter;
+import com.huan.percy.communitysocialsystem.adapter.LocalAdapter;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -43,18 +42,20 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+
+import co.mobiwise.materialintro.animation.MaterialIntroListener;
+import co.mobiwise.materialintro.shape.Focus;
+import co.mobiwise.materialintro.shape.FocusGravity;
+import co.mobiwise.materialintro.view.MaterialIntroView;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, MaterialIntroListener {
 
-    private final String IP = "http://192.168.23.178:8003";
+    private final String IP = "http://123.206.73.194:8003";
     private final String GET_BROADCAST_REQUEST = "/LingliServer/GetBroadcast";
     private final String GET_LIFE_REQUEST = "/LingliServer/GetService";
 
@@ -68,15 +69,15 @@ public class MainActivity extends AppCompatActivity
 
     private String location;
     private MaterialRefreshLayout materialRefreshLayout;
-    private ListView mListView;
+    private RecyclerView mRecyclerView;
     private static boolean LOCAL_SELECTED = true;
     private int[] to={R.id.author, R.id.article, R.id.date, R.id.face};   //这里是ListView显示每一列对应的list_item中控件的id
     LinkedList<Map<String, Object>> localListItems = new LinkedList<Map<String, Object>>();
     LinkedList<Map<String, Object>> lifeListItems = new LinkedList<Map<String, Object>>();
 
 
-    SimpleAdapter localAdapter;
-    SimpleAdapter lifeAdapter;
+    LocalAdapter localAdapter;
+    LifeAdapter lifeAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,15 +104,11 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        localAdapter = new SimpleAdapter(getApplicationContext(), localListItems, R.layout.list_item_layout,
-                new String[] {"author", "article", "date", "face"},
-                to);
-        lifeAdapter = new SimpleAdapter(getApplicationContext(), lifeListItems, R.layout.list_item_layout,
-                new String[] {"title", "article", "date", "face"},
-                to);
+
+        initView();
 
         materialRefreshLayout = (MaterialRefreshLayout) findViewById(R.id.refresh);
-        mListView = (ListView) findViewById(R.id.list_view);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
 
         if (materialRefreshLayout != null) {
             materialRefreshLayout.setSunStyle(true);
@@ -161,32 +158,22 @@ public class MainActivity extends AppCompatActivity
 
                 @Override
                 public void onfinish() {
-                    if(!networkState){
-                        Toast.makeText(getApplicationContext(),
-                                "网络开小差了 ╮(╯▽╰)╭", Toast.LENGTH_LONG).show();
-                    } else if(networkState && isMore){
-                        networkState = false;
-                        Toast.makeText(getApplicationContext(),
-                                "来了来了 ╰(￣▽￣)╭", Toast.LENGTH_LONG).show();
-                    } else if (networkState && !isMore){
-                        Toast.makeText(getApplicationContext(),
-                                "已经没有了 ╯﹏╰", Toast.LENGTH_LONG).show();
-                    }
+//                    if(!networkState){
+//                        Toast.makeText(getApplicationContext(),
+//                                "网络开小差了 ╮(╯▽╰)╭", Toast.LENGTH_LONG).show();
+//                    } else if(networkState && isMore){
+//                        networkState = false;
+//                        Toast.makeText(getApplicationContext(),
+//                                "来了来了 ╰(￣▽￣)╭", Toast.LENGTH_LONG).show();
+//                    } else if (networkState && !isMore){
+//                        Toast.makeText(getApplicationContext(),
+//                                "已经没有了 ╯﹏╰", Toast.LENGTH_LONG).show();
+//                    }
                 }
             });
         }
 
-        mListView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getApplicationContext(), "刷新好了", Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                Toast.makeText(getApplicationContext(), "╰(￣▽￣)╭", Toast.LENGTH_LONG).show();
-            }
-        });
+        //showIntro();
 
     }
 
@@ -230,9 +217,13 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         if (id == R.id.nav_user_broadcast) {
             LOCAL_SELECTED = true;
+            initView();
+            loadLocalData();
             materialRefreshLayout.autoRefresh();
         } else if (id == R.id.nav_life_info) {
             LOCAL_SELECTED = false;
+            initView();
+            loadLifeData();
             materialRefreshLayout.autoRefresh();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -240,18 +231,14 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void loadLocalData(int savePosition) {
-
-        mListView.setAdapter(localAdapter);
-        mListView.setSelection(savePosition);
+    private void loadLocalData() {
+        //mRecyclerView.scrollToPosition(savePosition);
         localAdapter.notifyDataSetChanged();
 
     }
 
-
-    private void loadLifeData(int savePosition) {
-        mListView.setAdapter(lifeAdapter);
-        mListView.setSelection(savePosition);
+    private void loadLifeData() {
+        //mRecyclerView.scrollToPosition(savePosition);
         lifeAdapter.notifyDataSetChanged();
     }
 
@@ -281,14 +268,14 @@ public class MainActivity extends AppCompatActivity
                     //判断是下拉刷新还是上拉刷新
                     if(timeFlag.equals("0") && localListItems.size() > 0){
                         date = localListItems.get(0).get("date").toString();
-                        Log.d("time", "下拉"+date);
+                        //Log.d("time", "下拉"+date);
                     } else if (timeFlag.equals("1") && localListItems.size() > 0){
                         date = localListItems.get(localListItems.size() - 1).get("date").toString();
-                        Log.d("time", "上拉"+date);
+                        //Log.d("time", "上拉"+date);
                     }
 
                     params.add(new BasicNameValuePair("date", date));
-                    Log.d("time", "first"+date);
+                    //Log.d("time", "first"+date);
 
                     final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, "utf-8");//以UTF-8格式发送
                     httpPost.setEntity(entity);
@@ -362,15 +349,15 @@ public class MainActivity extends AppCompatActivity
                     } else {
                         params.add(new BasicNameValuePair("flag", timeFlag));
                     }
-
                     params.add(new BasicNameValuePair("location", location));
+
                     //判断是下拉刷新还是上拉刷新
                     if(timeFlag.equals("0") && lifeListItems.size() > 0){
                         date = lifeListItems.get(0).get("date").toString();
-                        Log.d("time", "下拉"+date);
+                        //Log.d("time", "下拉"+date);
                     } else if (timeFlag.equals("1") && lifeListItems.size() > 0){
                         date = lifeListItems.get(lifeListItems.size() - 1).get("date").toString();
-                        Log.d("time", "上拉"+date);
+                        //Log.d("time", "上拉"+date);
                     }
 
                     params.add(new BasicNameValuePair("location", location));
@@ -425,19 +412,17 @@ public class MainActivity extends AppCompatActivity
         }).start();
     }
 
-
-
     public Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             int savePosition = (int) msg.obj;
             switch (msg.what) {
                 case NOTIFY_BROADCAST_CHANGED:
                     networkState = true;
-                    loadLocalData(savePosition);
+                    loadLocalData();
                     break;
                 case NOTIFY_LIFE_INFO_CHANGED:
                     networkState = true;
-                    loadLifeData(savePosition);
+                    loadLifeData();
                 default:
                     break;
             }
@@ -457,6 +442,44 @@ public class MainActivity extends AppCompatActivity
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
         this.finish();
+    }
+
+    public void showIntro(View view, String id, String text, FocusGravity focusGravity) {
+        new MaterialIntroView.Builder(MainActivity.this)
+                .enableDotAnimation(true)
+                .setFocusGravity(focusGravity)
+                .setFocusType(Focus.MINIMUM)
+                .setDelayMillis(100)
+                .enableFadeAnimation(true)
+                .performClick(true)
+                .setInfoText(text)
+                .setTarget(view)
+                .setListener(this)
+                .setUsageId(id)
+                .show();
+    }
+
+    @Override
+    public void onUserClicked(String s) {
+
+    }
+
+    private void initView() {
+        mRecyclerView= (RecyclerView) findViewById(R.id.recyclerView);
+        //设置并列2行的layoutManager
+        mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+
+        //设置线性布局的layoutManager
+        //LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        //recyclerView.setLayoutManager(linearLayoutManager);
+        if (LOCAL_SELECTED){
+            localAdapter = new LocalAdapter(localListItems);
+            mRecyclerView.setAdapter(localAdapter);
+        } else{
+            lifeAdapter = new LifeAdapter(lifeListItems);
+            mRecyclerView.setAdapter(lifeAdapter);
+        }
+
     }
 }
 

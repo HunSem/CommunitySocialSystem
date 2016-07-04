@@ -12,12 +12,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Toast;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -28,10 +24,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -39,7 +32,7 @@ import java.util.List;
  */
 public class AddBroadcastActivity extends AppCompatActivity {
 
-    private final String IP = "http://192.168.23.178:8003";
+    private final String IP = "http://123.206.73.194:8003";
     private final String ADD_REQUEST = "/LingliServer/AddBroadcast";
 
     private String location;

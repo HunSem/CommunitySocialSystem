@@ -16,7 +16,7 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:src="@drawable/nav_header" />
+        android:src="@drawable/bee" />
 
     <TextView
         android:layout_width="match_parent"

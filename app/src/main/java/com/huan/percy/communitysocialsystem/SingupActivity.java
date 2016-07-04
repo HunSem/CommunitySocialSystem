@@ -18,12 +18,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
-
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -34,12 +32,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
@@ -49,7 +43,7 @@ public class SingupActivity extends AppCompatActivity {
     private String location = "null";
     private String name = "null";
 
-    private final String IP = "http://192.168.23.178:8003";
+    private final String IP = "http://123.206.73.194:8003";
     private final String REGISTER_REQUEST = "/LingliServer/SignUp";
     private boolean registerResult = false;
     @InjectView(R.id.input_name) EditText _nameText;

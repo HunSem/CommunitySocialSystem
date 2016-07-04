@@ -10,8 +10,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
-import android.transition.Transition;
-import android.transition.TransitionInflater;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
@@ -47,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
     private String location = null;
     private String name = null;
     private boolean loginResult = false;
-    private final String IP = "http://192.168.23.178:8003";
+    private final String IP = "http://123.206.73.194:8003";
     private final String REQUEST_URL = "/LingliServer/SignIn";
 
     public static final int HANDLE_RESPOND = 1;
@@ -70,7 +68,7 @@ public class LoginActivity extends AppCompatActivity {
             w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         }
 
-        setContentView(R.layout.activity_login);
+            setContentView(R.layout.activity_login);
         ButterKnife.inject(this);
 
         if (checkCookie()){
