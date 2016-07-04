@@ -71,7 +71,6 @@ public class MainActivity extends AppCompatActivity
     private MaterialRefreshLayout materialRefreshLayout;
     private RecyclerView mRecyclerView;
     private static boolean LOCAL_SELECTED = true;
-    private int[] to={R.id.author, R.id.article, R.id.date, R.id.face};   //这里是ListView显示每一列对应的list_item中控件的id
     LinkedList<Map<String, Object>> localListItems = new LinkedList<Map<String, Object>>();
     LinkedList<Map<String, Object>> lifeListItems = new LinkedList<Map<String, Object>>();
 
@@ -79,14 +78,18 @@ public class MainActivity extends AppCompatActivity
     LocalAdapter localAdapter;
     LifeAdapter lifeAdapter;
 
+    FloatingActionButton fab;
+    DrawerLayout drawer;
+    Toolbar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -95,7 +98,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
@@ -114,6 +117,7 @@ public class MainActivity extends AppCompatActivity
             materialRefreshLayout.setSunStyle(true);
             materialRefreshLayout.setLoadMore(true);
             materialRefreshLayout.autoRefresh();
+            showIntro(mRecyclerView, "Broadcast", getString(R.string.tip_broadcast), FocusGravity.CENTER);
             materialRefreshLayout.setMaterialRefreshListener(new MaterialRefreshListener() {
                 @Override
                 public void onRefresh(final MaterialRefreshLayout materialRefreshLayout) {
@@ -172,8 +176,6 @@ public class MainActivity extends AppCompatActivity
                 }
             });
         }
-
-        //showIntro();
 
     }
 
@@ -282,10 +284,6 @@ public class MainActivity extends AppCompatActivity
                     HttpResponse httpResponse = httpclient.execute(httpPost);
                     if (httpResponse.getStatusLine().getStatusCode() == 200)//在200毫秒之内接收到返回值
                     {
-                        int savePosition = 0;
-                        if(localListItems.size()!= 0 && (!timeFlag.equals(GET_LASTEST))){
-                            savePosition = localListItems.size() - 1;
-                        }
 
                         HttpEntity entity1 = httpResponse.getEntity();
                         String response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
@@ -318,7 +316,6 @@ public class MainActivity extends AppCompatActivity
                         }
                         Message message = new Message();
                         message.what = NOTIFY_BROADCAST_CHANGED;
-                        message.obj = savePosition;
                         handler.sendMessage(message);//使用Message传递消息给线程
                     }
                 } catch (Exception e) {
@@ -368,10 +365,6 @@ public class MainActivity extends AppCompatActivity
                     HttpResponse httpResponse = httpclient.execute(httpPost);
                     if (httpResponse.getStatusLine().getStatusCode() == 200)//在200毫秒之内接收到返回值
                     {
-                        int savePosition = 0;
-                        if(lifeListItems.size()!= 0 && (!timeFlag.equals(GET_LASTEST))){
-                            savePosition = lifeListItems.size() - 1;
-                        }
                         HttpEntity entity1 = httpResponse.getEntity();
                         String response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
 
@@ -402,7 +395,6 @@ public class MainActivity extends AppCompatActivity
                         }
                         Message message = new Message();
                         message.what = NOTIFY_LIFE_INFO_CHANGED;
-                        message.obj = savePosition;
                         handler.sendMessage(message);//使用Message传递消息给线程
                     }
                 } catch (Exception e) {
@@ -414,7 +406,6 @@ public class MainActivity extends AppCompatActivity
 
     public Handler handler = new Handler() {
         public void handleMessage(Message msg) {
-            int savePosition = (int) msg.obj;
             switch (msg.what) {
                 case NOTIFY_BROADCAST_CHANGED:
                     networkState = true;
@@ -461,7 +452,18 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onUserClicked(String s) {
-
+        switch (s){
+            case "Broadcast":
+                showIntro(fab, "Add", getString(R.string.tip_add), FocusGravity.CENTER);
+                break;
+            case "Add":
+                showIntro(drawer, "Change", getString(R.string.tip_drawer), FocusGravity.LEFT);
+                break;
+            case "Change":
+                showIntro(toolbar, "Tool", getString(R.string.tip_offline), FocusGravity.RIGHT);
+            default:
+                break;
+        }
     }
 
     private void initView() {

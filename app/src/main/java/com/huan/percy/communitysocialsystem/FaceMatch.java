@@ -8,7 +8,7 @@ import java.util.Random;
 public  class FaceMatch {
     public  int getLocalFace(){
         Random rand = new Random();
-        int randNum = rand.nextInt(40)+1;
+        int randNum = rand.nextInt(20)+1;
         switch(randNum) {
             case 1:
                 return R.drawable.heroes_01;
