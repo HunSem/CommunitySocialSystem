@@ -74,7 +74,7 @@ public class LifeAdapter extends RecyclerView.Adapter<LifeAdapter.ViewHolder>{
     }
 
     public String analyzeTime(String date){
-        SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String nowDate = sDateFormat.format(new java.util.Date());
 
         int nowDay = Integer.parseInt(nowDate.substring(8, 10));

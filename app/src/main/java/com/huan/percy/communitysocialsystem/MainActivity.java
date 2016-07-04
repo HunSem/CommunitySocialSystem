@@ -107,12 +107,10 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
         initView();
 
         materialRefreshLayout = (MaterialRefreshLayout) findViewById(R.id.refresh);
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-
         if (materialRefreshLayout != null) {
             materialRefreshLayout.setSunStyle(true);
             materialRefreshLayout.setLoadMore(true);
@@ -234,13 +232,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadLocalData() {
-        //mRecyclerView.scrollToPosition(savePosition);
         localAdapter.notifyDataSetChanged();
-
     }
 
     private void loadLifeData() {
-        //mRecyclerView.scrollToPosition(savePosition);
         lifeAdapter.notifyDataSetChanged();
     }
 
@@ -256,7 +251,7 @@ public class MainActivity extends AppCompatActivity
                     SharedPreferences pref = getSharedPreferences("Cookie", MODE_PRIVATE);
                     location  = pref.getString("location", "null");
 
-                    SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                    SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     String date = sDateFormat.format(new java.util.Date());
 
                     //首次刷新
@@ -267,6 +262,7 @@ public class MainActivity extends AppCompatActivity
                     }
 
                     params.add(new BasicNameValuePair("location", location));
+
                     //判断是下拉刷新还是上拉刷新
                     if(timeFlag.equals("0") && localListItems.size() > 0){
                         date = localListItems.get(0).get("date").toString();
@@ -276,8 +272,9 @@ public class MainActivity extends AppCompatActivity
                         //Log.d("time", "上拉"+date);
                     }
 
+
+
                     params.add(new BasicNameValuePair("date", date));
-                    //Log.d("time", "first"+date);
 
                     final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, "utf-8");//以UTF-8格式发送
                     httpPost.setEntity(entity);
@@ -289,7 +286,7 @@ public class MainActivity extends AppCompatActivity
                         String response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
 
                         JSONArray result = new JSONArray(response); //Convert String to JSON Object
-
+                        Log.d("length", "JSON: " + response);
                         FaceMatch faceMatch = new FaceMatch();
                         if(timeFlag.equals("0") && localListItems.size() > 0){
                             isMore = true;
@@ -302,6 +299,7 @@ public class MainActivity extends AppCompatActivity
                                 listItem.put("face", faceMatch.getLocalFace());
                                 localListItems.addFirst(listItem);
                             }
+
                         } else {
                             isMore = true;
                             for(int i = 0; i < result.length(); i++){
@@ -314,6 +312,7 @@ public class MainActivity extends AppCompatActivity
                                 localListItems.add(listItem);
                             }
                         }
+
                         Message message = new Message();
                         message.what = NOTIFY_BROADCAST_CHANGED;
                         handler.sendMessage(message);//使用Message传递消息给线程
@@ -337,7 +336,7 @@ public class MainActivity extends AppCompatActivity
                     SharedPreferences pref = getSharedPreferences("Cookie", MODE_PRIVATE);
                     location  = pref.getString("location", "null");
 
-                    SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                    SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     String date = sDateFormat.format(new java.util.Date());
 
                     //首次刷新
@@ -411,7 +410,7 @@ public class MainActivity extends AppCompatActivity
                     networkState = true;
 
                     if (localListItems.size() == 0){
-                        SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                        SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         String nowDate = sDateFormat.format(new java.util.Date());
                         Map<String, Object> listItem = new HashMap<String, Object>();
                         listItem.put("author", "邻里");
@@ -425,7 +424,7 @@ public class MainActivity extends AppCompatActivity
                 case NOTIFY_LIFE_INFO_CHANGED:
                     networkState = true;
                     if (lifeListItems.size() == 0){
-                        SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                        SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         String nowDate = sDateFormat.format(new java.util.Date());
                         Map<String, Object> listItem = new HashMap<String, Object>();
                         listItem.put("title", "邻里");
