@@ -8,19 +8,33 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.huan.percy.communitysocialsystem.MainActivity"
     tools:showIn="@layout/app_bar_main">
-
     <com.cjj.MaterialRefreshLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:isLoadMore="true"
+        app:isLoadMore="false"
         android:id="@+id/refresh">
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recyclerView"
+        <android.support.v4.widget.NestedScrollView
+            android:orientation="vertical"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-        </android.support.v7.widget.RecyclerView>
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <include layout="@layout/banner_layout"/>
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                </android.support.v7.widget.RecyclerView>
+            </LinearLayout>
+
+        </android.support.v4.widget.NestedScrollView>
+
     </com.cjj.MaterialRefreshLayout>
 
 </LinearLayout >
+

@@ -2,6 +2,7 @@ package com.huan.percy.communitysocialsystem;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -18,15 +19,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.Toast;
-
 import com.cjj.MaterialRefreshLayout;
 import com.cjj.MaterialRefreshListener;
 import com.huan.percy.communitysocialsystem.adapter.LifeAdapter;
 import com.huan.percy.communitysocialsystem.adapter.LocalAdapter;
+import com.youth.banner.Banner;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -63,14 +60,16 @@ public class MainActivity extends AppCompatActivity
     private final int NOTIFY_LIFE_INFO_CHANGED = 1;
     private final String GET_LASTEST = "0";
     private final String GET_BEFORE = "1";
-
-    private boolean networkState = false;
-    private boolean isMore = false;
-
     private String location;
     private MaterialRefreshLayout materialRefreshLayout;
     private RecyclerView mRecyclerView;
     private static boolean LOCAL_SELECTED = true;
+
+    private boolean bannerVisible = false;
+    private Banner banner;
+    String[] images;
+    String[] titles;
+
     LinkedList<Map<String, Object>> localListItems = new LinkedList<Map<String, Object>>();
     LinkedList<Map<String, Object>> lifeListItems = new LinkedList<Map<String, Object>>();
 
@@ -217,16 +216,28 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         if (id == R.id.nav_user_broadcast) {
             LOCAL_SELECTED = true;
+            //切换适配器
             initView();
             loadLocalData();
+            //显示FAB
             fab.show();
+            //自动刷新数据
             materialRefreshLayout.autoRefresh();
+            //隐藏banner
+            banner.setVisibility(View.GONE);
+            banner.isAutoPlay(false);
         } else if (id == R.id.nav_life_info) {
             LOCAL_SELECTED = false;
+            //切换适配器
             initView();
             loadLifeData();
+            //自动刷新
             materialRefreshLayout.autoRefresh();
+            //隐藏FAB
             fab.hide();
+            //显示Banner
+            banner.setVisibility(View.VISIBLE);
+            banner.isAutoPlay(true);
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -288,10 +299,9 @@ public class MainActivity extends AppCompatActivity
                         String response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
 
                         JSONArray result = new JSONArray(response); //Convert String to JSON Object
-                        Log.d("length", "JSON: " + response);
+                        //Log.d("length", "JSON: " + response);
                         FaceMatch faceMatch = new FaceMatch();
                         if(timeFlag.equals("0") && localListItems.size() > 0){
-                            isMore = true;
                             for(int i = result.length() - 1; i >= 0; i--){
                                 Map<String, Object> listItem = new HashMap<String, Object>();
                                 JSONObject item = result.getJSONObject(i);
@@ -303,7 +313,6 @@ public class MainActivity extends AppCompatActivity
                             }
 
                         } else {
-                            isMore = true;
                             for(int i = 0; i < result.length(); i++){
                                 Map<String, Object> listItem = new HashMap<String, Object>();
                                 JSONObject item = result.getJSONObject(i);
@@ -372,7 +381,6 @@ public class MainActivity extends AppCompatActivity
                         JSONArray result = new JSONArray(response); //Convert String to JSON Object
                         FaceMatch  faceMatch = new FaceMatch();
                         if(timeFlag.equals("0") && lifeListItems.size() > 0){
-                            isMore = true;
                             for(int i = result.length() - 1; i >= 0; i--){
                                 Map<String, Object> listItem = new HashMap<String, Object>();
                                 JSONObject item = result.getJSONObject(i);
@@ -383,7 +391,7 @@ public class MainActivity extends AppCompatActivity
                                 lifeListItems.addFirst(listItem);
                             }
                         } else {
-                            isMore = true;
+
                             for(int i = 0; i < result.length(); i++){
                                 Map<String, Object> listItem = new HashMap<String, Object>();
                                 JSONObject item = result.getJSONObject(i);
@@ -409,8 +417,6 @@ public class MainActivity extends AppCompatActivity
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case NOTIFY_BROADCAST_CHANGED:
-                    networkState = true;
-
                     if (localListItems.size() == 0){
                         SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         String nowDate = sDateFormat.format(new java.util.Date());
@@ -424,7 +430,6 @@ public class MainActivity extends AppCompatActivity
                     loadLocalData();
                     break;
                 case NOTIFY_LIFE_INFO_CHANGED:
-                    networkState = true;
                     if (lifeListItems.size() == 0){
                         SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         String nowDate = sDateFormat.format(new java.util.Date());
@@ -496,7 +501,7 @@ public class MainActivity extends AppCompatActivity
         mRecyclerView= (RecyclerView) findViewById(R.id.recyclerView);
         //设置并列2行的layoutManager
         mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
-
+        mRecyclerView.setNestedScrollingEnabled(false);
         //设置线性布局的layoutManager
         //LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         //recyclerView.setLayoutManager(linearLayoutManager);
@@ -509,7 +514,22 @@ public class MainActivity extends AppCompatActivity
             mRecyclerView.setAdapter(lifeAdapter);
         }
 
-    }
+        banner = (Banner) findViewById(R.id.banner);
 
+        /**
+         * Banner样式设置需要在设置图片和标题前完成设置
+         */
+        //可以选择设置图片网址，或者资源文件，默认加载框架Glide
+        String imagePath = Uri.parse("android.resource://" + getPackageName() + "/"
+                + R.drawable.pic1).toString();
+        banner.setIndicatorGravity(Banner.CENTER);
+        banner.setBannerStyle(Banner.NUM_INDICATOR_TITLE);
+        images =  new String[] {imagePath, imagePath, imagePath, imagePath, imagePath};
+        titles = new String[] {"title 1", "title 2", "title 3", "title 4", "title 5", };
+        banner.setImages(images);
+        banner.setBannerTitle(titles);
+        banner.setVisibility(View.GONE);
+        banner.isAutoPlay(true);
+    }
 
 }
