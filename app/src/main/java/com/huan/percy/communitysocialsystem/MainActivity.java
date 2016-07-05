@@ -224,8 +224,8 @@ public class MainActivity extends AppCompatActivity
             //自动刷新数据
             materialRefreshLayout.autoRefresh();
             //隐藏banner
-            banner.setVisibility(View.GONE);
-            banner.isAutoPlay(false);
+            banner.setVisibility(View.VISIBLE);
+            banner.isAutoPlay(true);
         } else if (id == R.id.nav_life_info) {
             LOCAL_SELECTED = false;
             //切换适配器
@@ -236,8 +236,8 @@ public class MainActivity extends AppCompatActivity
             //隐藏FAB
             fab.hide();
             //显示Banner
-            banner.setVisibility(View.VISIBLE);
-            banner.isAutoPlay(true);
+            banner.setVisibility(View.GONE);
+            banner.isAutoPlay(false);
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -520,15 +520,27 @@ public class MainActivity extends AppCompatActivity
          * Banner样式设置需要在设置图片和标题前完成设置
          */
         //可以选择设置图片网址，或者资源文件，默认加载框架Glide
-        String imagePath = Uri.parse("android.resource://" + getPackageName() + "/"
+        String imagePath1 = Uri.parse("android.resource://" + getPackageName() + "/"
                 + R.drawable.pic1).toString();
+        String imagePath2 = Uri.parse("android.resource://" + getPackageName() + "/"
+                + R.drawable.pic2).toString();
+
+        String imagePath4 = Uri.parse("android.resource://" + getPackageName() + "/"
+                + R.drawable.pic4).toString();
+        String imagePath5 = Uri.parse("android.resource://" + getPackageName() + "/"
+                + R.drawable.pic5).toString();
+        images =  new String[] {imagePath1, imagePath2, imagePath4, imagePath5};
+        titles = new String[] {"CLOT 香港总部里的狠货到底有多少",
+                "adidas Ultra Boost Uncaged 破“笼”而出",
+                "Kevin Poon 带你转转他工作的地方",
+                "Vans 携手 DQM 推出全新 Sk8-Hi 鞋款", };
+
+        banner.setDelayTime(4000);
         banner.setIndicatorGravity(Banner.CENTER);
         banner.setBannerStyle(Banner.NUM_INDICATOR_TITLE);
-        images =  new String[] {imagePath, imagePath, imagePath, imagePath, imagePath};
-        titles = new String[] {"title 1", "title 2", "title 3", "title 4", "title 5", };
         banner.setImages(images);
         banner.setBannerTitle(titles);
-        banner.setVisibility(View.GONE);
+        banner.setVisibility(View.VISIBLE);
         banner.isAutoPlay(true);
     }
 
