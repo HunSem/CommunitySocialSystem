@@ -418,6 +418,7 @@ public class MainActivity extends AppCompatActivity
             switch (msg.what) {
                 case NOTIFY_BROADCAST_CHANGED:
                     if (localListItems.size() == 0){
+                        //社区内无广播时自动添加系统提示信息
                         SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         String nowDate = sDateFormat.format(new java.util.Date());
                         Map<String, Object> listItem = new HashMap<String, Object>();
@@ -448,9 +449,9 @@ public class MainActivity extends AppCompatActivity
     };
 
     private void offline(){
+        //修改、清空本地COOKIE
         SharedPreferences.Editor editor = getSharedPreferences("Cookie",
                 MODE_PRIVATE).edit();
-
         editor.putBoolean("logined", false);
         editor.putString("email", "");
         editor.putString("pwd", "");
@@ -536,7 +537,7 @@ public class MainActivity extends AppCompatActivity
                 "Vans 携手 DQM 推出全新 Sk8-Hi 鞋款", };
 
         banner.setDelayTime(4000);
-        banner.setIndicatorGravity(Banner.CENTER);
+        banner.setIndicatorGravity(Banner.RIGHT);
         banner.setBannerStyle(Banner.NUM_INDICATOR_TITLE);
         banner.setImages(images);
         banner.setBannerTitle(titles);
