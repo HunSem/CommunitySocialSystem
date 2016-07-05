@@ -219,12 +219,14 @@ public class MainActivity extends AppCompatActivity
             LOCAL_SELECTED = true;
             initView();
             loadLocalData();
+            fab.show();
             materialRefreshLayout.autoRefresh();
         } else if (id == R.id.nav_life_info) {
             LOCAL_SELECTED = false;
             initView();
             loadLifeData();
             materialRefreshLayout.autoRefresh();
+            fab.hide();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
