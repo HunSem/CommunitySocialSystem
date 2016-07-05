@@ -28,7 +28,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".LoginActivity"
             android:theme="@style/AppTheme.Dark">
@@ -45,15 +45,20 @@
             android:name=".AddBroadcastActivity"
             android:theme="@style/AppTheme.Dark" />
 
+
         <service android:name="com.amap.api.location.APSService" />
 
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="2d40107566383d03e0bf42377f28f357"></meta-data>
+            android:value="2d40107566383d03e0bf42377f28f357" />
         <meta-data
             android:name="android.support.PARENT_ACTIVITY"
             android:value="com.huan.percy.communitysocialsystem.MainActivity" />
 
+        <activity
+            android:name=".DetailsActivity"
+            android:label="@string/title_activity_detials"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

@@ -9,7 +9,6 @@ import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -19,6 +18,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
 import com.cjj.MaterialRefreshLayout;
 import com.cjj.MaterialRefreshListener;
 import com.huan.percy.communitysocialsystem.adapter.LifeAdapter;
@@ -531,10 +532,10 @@ public class MainActivity extends AppCompatActivity
         String imagePath5 = Uri.parse("android.resource://" + getPackageName() + "/"
                 + R.drawable.pic5).toString();
         images =  new String[] {imagePath1, imagePath2, imagePath4, imagePath5};
-        titles = new String[] {"CLOT 香港总部里的狠货到底有多少",
-                "adidas Ultra Boost Uncaged 破“笼”而出",
-                "Kevin Poon 带你转转他工作的地方",
-                "Vans 携手 DQM 推出全新 Sk8-Hi 鞋款", };
+        titles = new String[] {getString(R.string.title_1),
+                getString(R.string.title_2),
+                getString(R.string.title_3),
+                getString(R.string.title_4), };
 
         banner.setDelayTime(4000);
         banner.setIndicatorGravity(Banner.RIGHT);
@@ -543,6 +544,14 @@ public class MainActivity extends AppCompatActivity
         banner.setBannerTitle(titles);
         banner.setVisibility(View.VISIBLE);
         banner.isAutoPlay(true);
+        banner.setOnBannerClickListener(new Banner.OnBannerClickListener() {
+            @Override
+            public void OnBannerClick(View view, int position) {
+                Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
+                intent.putExtra("position", position);
+                startActivity(intent);
+            }
+        });
     }
 
 }
