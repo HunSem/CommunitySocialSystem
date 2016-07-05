@@ -65,7 +65,6 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView mRecyclerView;
     private static boolean LOCAL_SELECTED = true;
 
-    private boolean bannerVisible = false;
     private Banner banner;
     String[] images;
     String[] titles;
@@ -114,7 +113,8 @@ public class MainActivity extends AppCompatActivity
             materialRefreshLayout.setSunStyle(true);
             materialRefreshLayout.setLoadMore(true);
             materialRefreshLayout.autoRefresh();
-            showIntro(mRecyclerView, "Broadcast", getString(R.string.tip_broadcast), FocusGravity.CENTER);
+            showIntro(materialRefreshLayout, "Broadcast",
+                    getString(R.string.tip_broadcast), FocusGravity.CENTER);
             materialRefreshLayout.setMaterialRefreshListener(new MaterialRefreshListener() {
                 @Override
                 public void onRefresh(final MaterialRefreshLayout materialRefreshLayout) {
