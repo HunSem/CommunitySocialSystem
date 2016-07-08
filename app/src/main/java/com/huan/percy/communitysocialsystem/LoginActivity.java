@@ -255,9 +255,7 @@ public class LoginActivity extends AppCompatActivity {
                         loginResult = result.getBoolean("result");
                         name = result.getString("name");
                         location = result.getString("location");
-
-                        Log.d("json", "login:"+loginResult + " name:"+name+" location:"+location);
-
+                        //Log.d("json", "login:"+loginResult + " name:"+name+" location:"+location);
                         Message message = new Message();
                         message.what = HANDLE_RESPOND;
                         message.obj = response;

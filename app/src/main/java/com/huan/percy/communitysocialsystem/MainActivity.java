@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
@@ -160,17 +162,6 @@ public class MainActivity extends AppCompatActivity
 
                 @Override
                 public void onfinish() {
-//                    if(!networkState){
-//                        Toast.makeText(getApplicationContext(),
-//                                "网络开小差了 ╮(╯▽╰)╭", Toast.LENGTH_LONG).show();
-//                    } else if(networkState && isMore){
-//                        networkState = false;
-//                        Toast.makeText(getApplicationContext(),
-//                                "来了来了 ╰(￣▽￣)╭", Toast.LENGTH_LONG).show();
-//                    } else if (networkState && !isMore){
-//                        Toast.makeText(getApplicationContext(),
-//                                "已经没有了 ╯﹏╰", Toast.LENGTH_LONG).show();
-//                    }
                 }
             });
         }
@@ -230,13 +221,15 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_life_info) {
             LOCAL_SELECTED = false;
             //切换适配器
+            //设置线性布局的layoutManager
+
             initView();
             loadLifeData();
             //自动刷新
             materialRefreshLayout.autoRefresh();
             //隐藏FAB
             fab.hide();
-            //显示Banner
+            //隐藏Banner
             banner.setVisibility(View.GONE);
             banner.isAutoPlay(false);
         }
@@ -502,16 +495,14 @@ public class MainActivity extends AppCompatActivity
     private void initView() {
         mRecyclerView= (RecyclerView) findViewById(R.id.recyclerView);
         //设置并列2行的layoutManager
-        mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
-        mRecyclerView.setNestedScrollingEnabled(false);
-        //设置线性布局的layoutManager
-        //LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        //recyclerView.setLayoutManager(linearLayoutManager);
         if (LOCAL_SELECTED){
-
+            mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+            mRecyclerView.setNestedScrollingEnabled(false);
             localAdapter = new LocalAdapter(localListItems);
             mRecyclerView.setAdapter(localAdapter);
         } else{
+            mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL));
+            mRecyclerView.setNestedScrollingEnabled(false);
             lifeAdapter = new LifeAdapter(lifeListItems);
             mRecyclerView.setAdapter(lifeAdapter);
         }
